@@ -1,0 +1,14 @@
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+.git/
+.idea/
+.vs/
+.vscode/
+artifacts/
+TestResults/
+*.user
+*.suo
+.env
+appsettings.Production.json

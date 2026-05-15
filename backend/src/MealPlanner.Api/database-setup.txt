@@ -1,0 +1,249 @@
+-- ============================================================
+-- Meal Planner Project - PostgreSQL database setup
+-- ============================================================
+-- Uso recomendado:
+-- 1. Ejecuta primero el bloque "Crear base de datos" conectado a la BBDD postgres.
+-- 2. Cambia la conexion de pgAdmin a meal_planner_db.
+-- 3. Ejecuta el bloque "Crear estructura y datos iniciales".
+--
+-- Usuario admin inicial:
+-- email: admin@example.com
+-- password: Admin123!
+-- ============================================================
+
+-- ============================================================
+-- Crear base de datos
+-- ============================================================
+
+DROP DATABASE IF EXISTS meal_planner_db;
+CREATE DATABASE meal_planner_db;
+
+-- ============================================================
+-- Crear estructura y datos iniciales
+-- Ejecutar conectado a meal_planner_db
+-- ============================================================
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    role VARCHAR(50) NOT NULL DEFAULT 'user',
+    daily_calories INTEGER NOT NULL DEFAULT 2200 CHECK (daily_calories > 0),
+    minimum_protein_grams INTEGER NOT NULL DEFAULT 120 CHECK (minimum_protein_grams >= 0),
+    excluded_ingredients UUID[] NOT NULL DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE ingredients (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(150) NOT NULL UNIQUE,
+    category VARCHAR(100) NOT NULL,
+    calories_per_100g NUMERIC(8, 2) NOT NULL CHECK (calories_per_100g >= 0),
+    protein_per_100g NUMERIC(8, 2) NOT NULL CHECK (protein_per_100g >= 0),
+    carbs_per_100g NUMERIC(8, 2) NOT NULL DEFAULT 0 CHECK (carbs_per_100g >= 0),
+    sugars_per_100g NUMERIC(8, 2) NOT NULL DEFAULT 0 CHECK (sugars_per_100g >= 0),
+    fat_per_100g NUMERIC(8, 2) NOT NULL DEFAULT 0 CHECK (fat_per_100g >= 0),
+    fiber_per_100g NUMERIC(8, 2) NOT NULL DEFAULT 0 CHECK (fiber_per_100g >= 0),
+    is_gluten_free BOOLEAN NOT NULL DEFAULT FALSE,
+    is_diabetic_friendly BOOLEAN NOT NULL DEFAULT FALSE,
+    glycemic_index INTEGER CHECK (glycemic_index IS NULL OR glycemic_index BETWEEN 0 AND 100),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE recipes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(200) NOT NULL UNIQUE,
+    meal_type VARCHAR(50) NOT NULL CHECK (meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')),
+    description TEXT,
+    servings INTEGER NOT NULL CHECK (servings > 0),
+    tags TEXT[] NOT NULL DEFAULT '{}',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE recipe_ingredients (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    ingredient_id UUID NOT NULL REFERENCES ingredients(id),
+    quantity NUMERIC(10, 2) NOT NULL CHECK (quantity > 0),
+    unit VARCHAR(30) NOT NULL,
+    UNIQUE (recipe_id, ingredient_id, unit)
+);
+
+CREATE TABLE user_saved_recipes (
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    saved_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (user_id, recipe_id)
+);
+
+CREATE TABLE inventory_items (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    ingredient_id UUID NOT NULL REFERENCES ingredients(id),
+    quantity NUMERIC(10, 2) NOT NULL CHECK (quantity >= 0),
+    unit VARCHAR(30) NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (user_id, ingredient_id, unit)
+);
+
+CREATE TABLE meal_plans (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    year INTEGER NOT NULL CHECK (year >= 2024),
+    month INTEGER NOT NULL CHECK (month BETWEEN 1 AND 12),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE meal_plan_days (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meal_plan_id UUID NOT NULL REFERENCES meal_plans(id) ON DELETE CASCADE,
+    plan_date DATE NOT NULL,
+    UNIQUE (meal_plan_id, plan_date)
+);
+
+CREATE TABLE planned_meals (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    meal_plan_day_id UUID NOT NULL REFERENCES meal_plan_days(id) ON DELETE CASCADE,
+    recipe_id UUID NOT NULL REFERENCES recipes(id),
+    meal_type VARCHAR(50) NOT NULL CHECK (meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')),
+    UNIQUE (meal_plan_day_id, meal_type)
+);
+
+CREATE INDEX idx_ingredients_name ON ingredients(name);
+CREATE INDEX idx_recipes_meal_type ON recipes(meal_type);
+CREATE INDEX idx_recipe_ingredients_recipe_id ON recipe_ingredients(recipe_id);
+CREATE INDEX idx_recipe_ingredients_ingredient_id ON recipe_ingredients(ingredient_id);
+CREATE INDEX idx_user_saved_recipes_user_id ON user_saved_recipes(user_id);
+CREATE INDEX idx_inventory_items_user_id ON inventory_items(user_id);
+CREATE INDEX idx_inventory_items_ingredient_id ON inventory_items(ingredient_id);
+CREATE INDEX idx_meal_plans_user_id ON meal_plans(user_id);
+CREATE INDEX idx_meal_plan_days_plan_id ON meal_plan_days(meal_plan_id);
+CREATE INDEX idx_planned_meals_day_id ON planned_meals(meal_plan_day_id);
+
+INSERT INTO users (
+    email,
+    password_hash,
+    role,
+    daily_calories,
+    minimum_protein_grams
+) VALUES (
+    'admin@example.com',
+    '100000.l6Hu71i2/86r0NNp8rtlXg==.C177U2L3I1Gaml4pWKVcBvsf7+bLdL7TV9Afy3vNwnQ=',
+    'admin',
+    2200,
+    120
+);
+
+INSERT INTO ingredients (
+    name, category, calories_per_100g, protein_per_100g, carbs_per_100g,
+    sugars_per_100g, fat_per_100g, fiber_per_100g,
+    is_gluten_free, is_diabetic_friendly, glycemic_index
+) VALUES
+('avena', 'cereal', 389, 16.90, 66.30, 0.90, 6.90, 10.60, FALSE, FALSE, 55),
+('yogur', 'lacteo', 61, 3.50, 4.70, 4.70, 3.30, 0.00, TRUE, TRUE, 35),
+('platano', 'fruta', 89, 1.10, 22.80, 12.20, 0.30, 2.60, TRUE, FALSE, 51),
+('huevo', 'proteina', 155, 13.00, 1.10, 1.10, 11.00, 0.00, TRUE, TRUE, 0),
+('espinacas', 'verdura', 23, 2.90, 3.60, 0.40, 0.40, 2.20, TRUE, TRUE, 15),
+('pollo', 'carne', 165, 31.00, 0.00, 0.00, 3.60, 0.00, TRUE, TRUE, 0),
+('arroz', 'cereal', 130, 2.70, 28.00, 0.10, 0.30, 0.40, TRUE, FALSE, 73),
+('brocoli', 'verdura', 34, 2.80, 6.60, 1.70, 0.40, 2.60, TRUE, TRUE, 15),
+('lentejas', 'legumbre', 116, 9.00, 20.10, 1.80, 0.40, 7.90, TRUE, TRUE, 32),
+('zanahoria', 'verdura', 41, 0.90, 9.60, 4.70, 0.20, 2.80, TRUE, TRUE, 39),
+('patata', 'tuberculo', 77, 2.00, 17.00, 0.80, 0.10, 2.20, TRUE, FALSE, 78),
+('salmon', 'pescado', 208, 20.00, 0.00, 0.00, 13.00, 0.00, TRUE, TRUE, 0),
+('ensalada', 'verdura', 17, 1.20, 3.30, 1.20, 0.20, 1.80, TRUE, TRUE, 15),
+('garbanzos', 'legumbre', 164, 8.90, 27.40, 4.80, 2.60, 7.60, TRUE, TRUE, 28),
+('tomate', 'verdura', 18, 0.90, 3.90, 2.60, 0.20, 1.20, TRUE, TRUE, 15),
+('pepino', 'verdura', 15, 0.70, 3.60, 1.70, 0.10, 0.50, TRUE, TRUE, 15);
+
+WITH recipe AS (
+    INSERT INTO recipes (name, meal_type, description, servings, tags)
+    VALUES ('Avena con yogur', 'breakfast', 'Desayuno con avena, yogur y platano.', 1, ARRAY['vegetarian'])
+    RETURNING id
+)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+SELECT recipe.id, ingredients.id, 80, 'g' FROM recipe, ingredients WHERE ingredients.name = 'avena'
+UNION ALL
+SELECT recipe.id, ingredients.id, 200, 'g' FROM recipe, ingredients WHERE ingredients.name = 'yogur'
+UNION ALL
+SELECT recipe.id, ingredients.id, 1, 'ud' FROM recipe, ingredients WHERE ingredients.name = 'platano';
+
+WITH recipe AS (
+    INSERT INTO recipes (name, meal_type, description, servings, tags)
+    VALUES ('Tortilla de espinacas', 'breakfast', 'Tortilla sencilla con huevo y espinacas.', 1, ARRAY['vegetarian', 'gluten_free'])
+    RETURNING id
+)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+SELECT recipe.id, ingredients.id, 3, 'ud' FROM recipe, ingredients WHERE ingredients.name = 'huevo'
+UNION ALL
+SELECT recipe.id, ingredients.id, 80, 'g' FROM recipe, ingredients WHERE ingredients.name = 'espinacas';
+
+WITH recipe AS (
+    INSERT INTO recipes (name, meal_type, description, servings, tags)
+    VALUES ('Pollo con arroz', 'lunch', 'Plato equilibrado con pollo, arroz y brocoli.', 1, ARRAY['high_protein'])
+    RETURNING id
+)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+SELECT recipe.id, ingredients.id, 180, 'g' FROM recipe, ingredients WHERE ingredients.name = 'pollo'
+UNION ALL
+SELECT recipe.id, ingredients.id, 100, 'g' FROM recipe, ingredients WHERE ingredients.name = 'arroz'
+UNION ALL
+SELECT recipe.id, ingredients.id, 120, 'g' FROM recipe, ingredients WHERE ingredients.name = 'brocoli';
+
+WITH recipe AS (
+    INSERT INTO recipes (name, meal_type, description, servings, tags)
+    VALUES ('Lentejas estofadas', 'lunch', 'Lentejas con zanahoria y patata.', 1, ARRAY['vegetarian'])
+    RETURNING id
+)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+SELECT recipe.id, ingredients.id, 120, 'g' FROM recipe, ingredients WHERE ingredients.name = 'lentejas'
+UNION ALL
+SELECT recipe.id, ingredients.id, 80, 'g' FROM recipe, ingredients WHERE ingredients.name = 'zanahoria'
+UNION ALL
+SELECT recipe.id, ingredients.id, 100, 'g' FROM recipe, ingredients WHERE ingredients.name = 'patata';
+
+WITH recipe AS (
+    INSERT INTO recipes (name, meal_type, description, servings, tags)
+    VALUES ('Salmon con patata', 'dinner', 'Cena con salmon, patata y ensalada.', 1, ARRAY['high_protein', 'gluten_free'])
+    RETURNING id
+)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+SELECT recipe.id, ingredients.id, 160, 'g' FROM recipe, ingredients WHERE ingredients.name = 'salmon'
+UNION ALL
+SELECT recipe.id, ingredients.id, 180, 'g' FROM recipe, ingredients WHERE ingredients.name = 'patata'
+UNION ALL
+SELECT recipe.id, ingredients.id, 100, 'g' FROM recipe, ingredients WHERE ingredients.name = 'ensalada';
+
+WITH recipe AS (
+    INSERT INTO recipes (name, meal_type, description, servings, tags)
+    VALUES ('Ensalada de garbanzos', 'dinner', 'Ensalada fria con garbanzos, tomate y pepino.', 1, ARRAY['vegetarian', 'gluten_free', 'diabetic_friendly'])
+    RETURNING id
+)
+INSERT INTO recipe_ingredients (recipe_id, ingredient_id, quantity, unit)
+SELECT recipe.id, ingredients.id, 140, 'g' FROM recipe, ingredients WHERE ingredients.name = 'garbanzos'
+UNION ALL
+SELECT recipe.id, ingredients.id, 100, 'g' FROM recipe, ingredients WHERE ingredients.name = 'tomate'
+UNION ALL
+SELECT recipe.id, ingredients.id, 80, 'g' FROM recipe, ingredients WHERE ingredients.name = 'pepino';
+
+-- ============================================================
+-- Consulta util: recetas con nutricion calculada
+-- ============================================================
+
+SELECT
+    r.id,
+    r.name,
+    r.meal_type,
+    r.servings,
+    ROUND(SUM(i.calories_per_100g * ri.quantity / 100), 2) AS total_calories,
+    ROUND(SUM(i.protein_per_100g * ri.quantity / 100), 2) AS total_protein,
+    BOOL_AND(i.is_gluten_free) AS is_gluten_free,
+    BOOL_AND(i.is_diabetic_friendly) AS is_diabetic_friendly
+FROM recipes r
+JOIN recipe_ingredients ri ON ri.recipe_id = r.id
+JOIN ingredients i ON i.id = ri.ingredient_id
+WHERE ri.unit = 'g'
+GROUP BY r.id, r.name, r.meal_type, r.servings
+ORDER BY r.name;
