@@ -9,14 +9,17 @@ Fecha de ultima actualizacion: 2026-05-17.
 | Tecnicas automaticas | 3 | 3 | 0 | 0 |
 | Funcionales manuales | 36 | 36 | 0 | 0 |
 | Backup/restauracion | 2 | 2 | 0 | 0 |
+| Despliegue cloud | 5 | 5 | 0 | 0 |
 
 ## Entorno de ejecucion
 
-- Entorno: local.
+- Entorno local: React/Vite, API .NET y PostgreSQL.
+- Entorno cloud: Vercel, Railway, Neon y Resend.
 - Frontend: React/Vite en navegador.
 - Backend: API .NET.
-- Base de datos: PostgreSQL local.
-- Correo: SMTP configurado con Gmail y MailKit.
+- Base de datos: PostgreSQL local y Neon.
+- Correo local: SMTP Gmail/MailKit.
+- Correo cloud: Resend por API HTTPS.
 - Ejecutor de pruebas funcionales: usuario del proyecto durante el desarrollo.
 
 ## Pruebas tecnicas ejecutadas
@@ -77,10 +80,21 @@ Estas pruebas se han ejecutado manualmente durante el desarrollo en entorno loca
 | PT-039 | Crear backup | `.\tools\database\backup-database.ps1 -Password admin` | Archivo `.backup` generado | Backup creado en `documentation/database/backups/meal_planner_db-20260517_160709.backup` | Correcta |
 | PT-040 | Restaurar backup | `.\tools\database\restore-database.ps1 -BackupPath .\documentation\database\backups\meal_planner_db-20260517_160709.backup -Database meal_planner_restore_test -Password admin` | BBDD restaurada | Restauracion correcta en `meal_planner_restore_test`; conteos verificados: 3 usuarios, 55 ingredientes, 107 recetas, 428 pasos, 3 planes | Correcta |
 
+## Pruebas de despliegue cloud
+
+| ID | Caso | Resultado esperado | Resultado obtenido | Estado |
+| --- | --- | --- | --- | --- |
+| PT-042 | API Railway health | `/api/health` responde | API desplegada y health operativo | Correcta |
+| PT-043 | Conexion Railway-Neon | Login funciona contra BBDD cloud | Login correcto tras configurar cadena Neon | Correcta |
+| PT-044 | Frontend Vercel | Frontend carga desde Vercel | Aplicacion accesible en `https://mealplanner-six-xi.vercel.app` | Correcta |
+| PT-045 | CORS Vercel-Railway | Frontend puede llamar API | Login desde Vercel funciona | Correcta |
+| PT-046 | Registro cloud con email | Registro envia correo | Registro funciona usando Resend | Correcta |
+
 ## Observaciones
 
 - Las pruebas automaticas validan que el codigo compila y que el frontend genera build de produccion.
 - Las pruebas funcionales se han ejecutado manualmente en local durante el desarrollo.
-- El envio de correos de activacion y recuperacion funciona correctamente con SMTP configurado.
+- El envio de correos de activacion y recuperacion funciona correctamente con SMTP en local y con Resend en Railway.
 - La prueba de backup se completo correctamente tras localizar `pg_dump` en la instalacion local de PostgreSQL.
 - La prueba de restauracion se ejecuto correctamente sobre la base de prueba `meal_planner_restore_test`, sin afectar a la base principal `meal_planner_db`.
+- El despliegue final queda validado con frontend en Vercel, API en Railway, BBDD en Neon y correos por Resend.

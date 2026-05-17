@@ -1,26 +1,33 @@
 # Guia de despliegue
 
-Esta guia describe un despliegue con Docker en un servidor o VPS. Es el camino recomendado para entregar el proyecto porque mantiene separados frontend, backend y configuracion.
+Esta guia resume el despliegue final del proyecto y mantiene tambien una alternativa con Docker en servidor/VPS.
+
+El despliegue final validado es:
+
+```text
+Frontend Vercel -> API Railway -> Neon PostgreSQL
+                         -> Resend
+```
 
 ## 1. Requisitos del servidor
 
 - Docker instalado.
 - Docker Compose instalado.
-- PostgreSQL accesible desde el backend.
+- PostgreSQL accesible desde el backend, en el despliegue final Neon.
 - Puerto publico para frontend.
 - Puerto publico o interno para API.
-- Cuenta SMTP para correos de activacion y recuperacion.
+- Proveedor de correo transaccional, en el despliegue final Resend.
 
 ## 2. Componentes a desplegar
 
 ```text
-frontend  React + Vite compilado y servido con Nginx
-backend   API .NET 10
-database  PostgreSQL
-smtp      Gmail, Brevo, Mailgun, SendGrid u otro proveedor SMTP
+frontend  React + Vite en Vercel
+backend   API .NET 10 en Railway
+database  Neon PostgreSQL
+email     Resend
 ```
 
-En local se ha usado PostgreSQL instalado fuera de Docker. En servidor puedes mantener esa opcion o usar PostgreSQL gestionado por el proveedor.
+En local tambien puede usarse Docker Compose y PostgreSQL local.
 
 ## 3. Variables de entorno
 
@@ -33,11 +40,8 @@ ASPNETCORE_ENVIRONMENT=Production
 ALLOWED_ORIGINS=https://TU_FRONTEND
 FRONTEND_BASE_URL=https://TU_FRONTEND
 ConnectionStrings__MealPlannerDb=Host=TU_HOST;Port=5432;Database=meal_planner_db;Username=TU_USUARIO;Password=TU_PASSWORD
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=meal.planner.project.no.reply@gmail.com
-SMTP_PASSWORD=PASSWORD_DE_APLICACION
-SMTP_FROM=meal.planner.project.no.reply@gmail.com
+RESEND_API_KEY=TU_API_KEY_RESEND
+EMAIL_FROM=Meal Planner <onboarding@resend.dev>
 ```
 
 Variable del frontend en build:
@@ -47,6 +51,14 @@ VITE_API_BASE_URL=https://TU_API
 ```
 
 No uses `SMTP_ALLOW_INVALID_CERTIFICATES=true` en produccion. Esa variable solo sirve para desarrollo local si Docker no confia en la cadena de certificados de la red.
+
+## 3.1. URLs finales
+
+```text
+Frontend: https://mealplanner-six-xi.vercel.app
+API:      https://proyecto-production-c7a3.up.railway.app
+Health:   https://proyecto-production-c7a3.up.railway.app/api/health
+```
 
 ## 4. Preparar base de datos
 
@@ -70,7 +82,7 @@ admin@example.com
 Admin123!
 ```
 
-## 5. Despliegue con Docker Compose
+## 5. Alternativa con Docker Compose
 
 Desde la raiz del proyecto:
 
@@ -196,7 +208,13 @@ docker compose up -d
 
 ### No llegan correos
 
-Revisa:
+En produccion revisa:
+
+- `RESEND_API_KEY`
+- `EMAIL_FROM`
+- logs del backend en Railway
+
+En local con SMTP revisa:
 
 - `SMTP_HOST`
 - `SMTP_PORT`

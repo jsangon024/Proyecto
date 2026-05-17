@@ -47,9 +47,9 @@ RESEND_API_KEY=API_KEY_DE_RESEND
 EMAIL_FROM=Meal Planner <onboarding@resend.dev>
 ```
 
-Si Railway tarda mucho en registro y termina en error, normalmente es un bloqueo o timeout SMTP. Con Gmail se puede probar `SMTP_PORT=465`; la API usara SSL directo para ese puerto. Con `SMTP_PORT=587` usara STARTTLS.
+Si `RESEND_API_KEY` esta configurada, la API usa Resend por HTTPS y no usa SMTP. Es la opcion validada en Railway.
 
-Si `RESEND_API_KEY` esta configurada, la API usa Resend por HTTPS y no usa SMTP. Es la opcion recomendada en Railway.
+SMTP queda como alternativa local. Con Gmail se puede probar `SMTP_PORT=465`; la API usara SSL directo para ese puerto. Con `SMTP_PORT=587` usara STARTTLS.
 
 Cuando el frontend se despliegue en internet, actualiza:
 
@@ -109,6 +109,8 @@ Despues configura variables desde el panel o con `railway variables`.
 3. Registro envia correo real.
 4. Recuperacion de password envia correo real.
 5. Recetas, ingredientes y planes se leen desde Neon.
+
+Estado actual: verificado correctamente con Resend.
 
 ## Problemas frecuentes
 

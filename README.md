@@ -4,6 +4,15 @@ La documentacion del proyecto esta centralizada en:
 
 [documentation/README.md](C:/Users/Usuario/Documents/Codex/2026-05-05/files-mentioned-by-the-user-arranque/meal-planner-project/documentation/README.md)
 
+Despliegue final:
+
+```text
+Frontend: https://mealplanner-six-xi.vercel.app
+API:      https://proyecto-production-c7a3.up.railway.app
+BBDD:     Neon PostgreSQL
+Email:    Resend
+```
+
 Guia de despliegue:
 
 [documentation/operacion/despliegue.md](C:/Users/Usuario/Documents/Codex/2026-05-05/files-mentioned-by-the-user-arranque/meal-planner-project/documentation/operacion/despliegue.md)

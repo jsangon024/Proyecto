@@ -89,6 +89,7 @@ documentation/seguimiento/incidencias.md
 - Se prepara la API para Railway mediante `railway.toml` y escucha dinamica del puerto `${PORT}`.
 - Se prepara el frontend para Vercel mediante `vercel.json` y se documenta la variable `VITE_API_BASE_URL`.
 - Frontend desplegado en Vercel: `https://mealplanner-six-xi.vercel.app`.
+- Registro y correos en despliegue cloud funcionando correctamente con Resend.
 
 ### Lecciones aprendidas
 

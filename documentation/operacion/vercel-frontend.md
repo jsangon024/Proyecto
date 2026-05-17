@@ -86,6 +86,8 @@ La URL de Vercel no esta en `ALLOWED_ORIGINS` de Railway.
 https://mealplanner-six-xi.vercel.app
 ```
 
+Estado actual: desplegado y probado contra la API de Railway.
+
 ### API no responde
 
 Comprueba:

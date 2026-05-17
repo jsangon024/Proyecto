@@ -59,7 +59,7 @@ Si `SMTP_HOST` no esta configurado, la API no envia correo real y escribe el enl
 
 El envio SMTP se realiza con MailKit. En Docker local puede activarse `SMTP_ALLOW_INVALID_CERTIFICATES=true` si la red o el entorno interceptan certificados TLS. Esta opcion no debe usarse en produccion.
 
-En despliegues cloud, si SMTP no esta disponible, puede usarse Resend mediante `RESEND_API_KEY`.
+En despliegues cloud se usa Resend mediante `RESEND_API_KEY`. SMTP queda como alternativa local.
 
 ## Endpoints principales
 
