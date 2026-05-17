@@ -8,54 +8,87 @@ namespace MealPlanner.Api.Services;
 public sealed class ShoppingListService
 {
     private readonly MealPlannerDbContext _db;
-    private readonly MealPlannerService _planner;
 
-    public ShoppingListService(MealPlannerDbContext db, MealPlannerService planner)
+    public ShoppingListService(MealPlannerDbContext db)
     {
         _db = db;
-        _planner = planner;
     }
 
-    public IReadOnlyCollection<ShoppingListItemDto>? CreateFromPlan(UserEntity user, Guid planId)
+    public IReadOnlyCollection<ShoppingListItemDto>? CreateFromPlans(
+        UserEntity user,
+        IReadOnlyCollection<Guid> planIds,
+        Guid? selectedPlanId,
+        IReadOnlyCollection<string>? selectedDates,
+        bool onlyMissing)
     {
-        var plan = _planner.GetByIdEntity(user, planId);
-        if (plan is null)
+        var normalizedPlanIds = planIds.Distinct().ToArray();
+        if (normalizedPlanIds.Length == 0)
         {
             return null;
         }
 
-        var required = CalculateRequiredIngredients(plan);
-        SubtractInventory(user, required);
+        var plans = _db.MealPlans
+            .AsNoTracking()
+            .IncludeFullPlan()
+            .Where(plan => plan.UserId == user.Id && normalizedPlanIds.Contains(plan.Id))
+            .ToArray();
+
+        if (plans.Length != normalizedPlanIds.Length)
+        {
+            return null;
+        }
+
+        var required = CalculateRequiredIngredients(plans, selectedPlanId, selectedDates);
+        if (onlyMissing)
+        {
+            SubtractInventory(user, required);
+        }
 
         return required.Values.OrderBy(item => item.Name).ToArray();
     }
 
-    private Dictionary<string, ShoppingListItemDto> CalculateRequiredIngredients(MealPlanEntity plan)
+    private static Dictionary<string, ShoppingListItemDto> CalculateRequiredIngredients(
+        IReadOnlyCollection<MealPlanEntity> plans,
+        Guid? selectedPlanId,
+        IReadOnlyCollection<string>? selectedDates)
     {
-        var required = new Dictionary<string, ShoppingListItemDto>(StringComparer.OrdinalIgnoreCase);
-        foreach (var day in plan.Days)
-        {
-            foreach (var meal in day.Meals)
-            {
-                if (meal.Recipe is null)
-                {
-                    continue;
-                }
+        var dateFilter = selectedDates is null || selectedDates.Count == 0
+            ? null
+            : selectedDates.Select(date => DateOnly.TryParse(date, out var parsed) ? parsed : (DateOnly?)null)
+                .Where(date => date is not null)
+                .Select(date => date!.Value)
+                .ToHashSet();
 
-                foreach (var recipeIngredient in meal.Recipe.Ingredients)
+        var required = new Dictionary<string, ShoppingListItemDto>(StringComparer.OrdinalIgnoreCase);
+        foreach (var plan in plans)
+        {
+            var shouldFilterPlanByDate = selectedPlanId is not null && plan.Id == selectedPlanId;
+            foreach (var day in plan.Days.Where(day =>
+                !day.IsCompleted &&
+                (!shouldFilterPlanByDate || dateFilter is null || dateFilter.Contains(day.PlanDate))))
+            {
+                foreach (var meal in day.Meals)
                 {
-                    if (recipeIngredient.Ingredient is null)
+                    if (meal.Recipe is null)
                     {
                         continue;
                     }
 
-                    var key = BuildKey(recipeIngredient.IngredientId, recipeIngredient.Unit);
-                    required.TryGetValue(key, out var current);
-                    required[key] = new ShoppingListItemDto(
-                        recipeIngredient.IngredientId,
-                        recipeIngredient.Ingredient.Name,
-                        (current?.Quantity ?? 0) + recipeIngredient.Quantity,
-                        recipeIngredient.Unit);
+                    foreach (var recipeIngredient in meal.Recipe.Ingredients)
+                    {
+                        if (recipeIngredient.Ingredient is null)
+                        {
+                            continue;
+                        }
+
+                        var key = BuildKey(recipeIngredient.IngredientId, recipeIngredient.Unit);
+                        required.TryGetValue(key, out var current);
+                        required[key] = new ShoppingListItemDto(
+                            recipeIngredient.IngredientId,
+                            recipeIngredient.Ingredient.Name,
+                            (current?.Quantity ?? 0) + recipeIngredient.Quantity,
+                            recipeIngredient.Unit);
+                    }
                 }
             }
         }

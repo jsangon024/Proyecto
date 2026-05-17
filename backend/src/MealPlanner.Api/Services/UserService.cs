@@ -65,9 +65,14 @@ public sealed class UserService
         _db.SaveChanges();
     }
 
-    public void DeleteOwnAccount(UserEntity user)
+    public void DeleteOwnAccount(UserEntity user, DeleteAccountRequest request)
     {
         var storedUser = _db.Users.Find(user.Id) ?? throw new ValidationException("Usuario no encontrado.");
+        if (string.IsNullOrWhiteSpace(request.Password) || !_hasher.Verify(request.Password, storedUser.PasswordHash))
+        {
+            throw new ValidationException("La password no es correcta.");
+        }
+
         _db.Users.Remove(storedUser);
         _db.SaveChanges();
     }

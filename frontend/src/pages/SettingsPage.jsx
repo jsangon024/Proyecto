@@ -6,6 +6,7 @@ import { Panel } from '../components/ui/Panel.jsx';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useAsyncAction } from '../hooks/useAsyncAction.js';
 import { useToast } from '../hooks/useToast.jsx';
+import { confirmDelete } from '../utils/confirmDelete.js';
 
 export function SettingsPage() {
   const { token, user, logout } = useAuth();
@@ -17,6 +18,7 @@ export function SettingsPage() {
     newPassword: '',
     confirmPassword: '',
   });
+  const [deletePassword, setDeletePassword] = useState('');
 
   async function changePassword(event) {
     event.preventDefault();
@@ -26,12 +28,11 @@ export function SettingsPage() {
   }
 
   async function deleteAccount() {
-    const confirmed = window.confirm('Vas a eliminar tu cuenta y todos tus datos asociados. Esta accion no se puede deshacer.');
-    if (!confirmed) {
+    if (!confirmDelete('tu cuenta y todos tus datos asociados')) {
       return;
     }
 
-    await deleteAction.run(() => userApi.deleteAccount(token));
+    await deleteAction.run(() => userApi.deleteAccount(token, deletePassword));
     logout();
   }
 
@@ -76,6 +77,13 @@ export function SettingsPage() {
 
       <Panel title="Eliminar cuenta" icon={<Trash2 size={18} />} className="wide">
         <p className="muted">La eliminacion de cuenta borra tu usuario y los datos asociados por las relaciones de la base de datos.</p>
+        <Field label="Password actual">
+          <input
+            type="password"
+            value={deletePassword}
+            onChange={(event) => setDeletePassword(event.target.value)}
+          />
+        </Field>
         {deleteAction.error && <div className="notice">{deleteAction.error}</div>}
         <button type="button" className="danger-button" disabled={deleteAction.loading} onClick={deleteAccount}>
           Eliminar mi cuenta

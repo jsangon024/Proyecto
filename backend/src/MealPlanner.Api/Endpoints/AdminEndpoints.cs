@@ -12,6 +12,7 @@ public static class AdminEndpoints
         group.MapGet("/users", GetUsers);
         group.MapGet("/users/{id:guid}", GetUser);
         group.MapPut("/users/{id:guid}/role", UpdateRole);
+        group.MapPut("/users/{id:guid}/password", ChangePassword);
         group.MapDelete("/users/{id:guid}", DeleteUser);
 
         return app;
@@ -80,5 +81,23 @@ public static class AdminEndpoints
         }
 
         return admin.DeleteUser(id) ? Results.NoContent() : Results.NotFound();
+    }
+
+    private static IResult ChangePassword(Guid id, AdminChangePasswordRequest request, HttpContext context, AdminService admin)
+    {
+        var adminCheck = EndpointHelpers.RequireAdmin(EndpointHelpers.CurrentUser(context));
+        if (adminCheck != Results.Empty)
+        {
+            return adminCheck;
+        }
+
+        try
+        {
+            return admin.ChangeUserPassword(id, request) ? Results.NoContent() : Results.NotFound();
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
     }
 }

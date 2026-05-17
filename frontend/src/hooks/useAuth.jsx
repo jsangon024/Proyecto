@@ -53,8 +53,7 @@ export function AuthProvider({ children }) {
 
   async function register(email, password, confirmPassword) {
     const response = await authApi.register(email, password, confirmPassword);
-    persistSession(response.accessToken, response.user);
-    return response.user;
+    return response;
   }
 
   function persistSession(nextToken, nextUser) {

@@ -17,6 +17,7 @@ builder.Services.AddDbContext<MealPlannerDbContext>(options =>
 builder.Services.AddSingleton<PasswordHasher>();
 builder.Services.AddSingleton<TokenSessionStore>();
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AdminService>();

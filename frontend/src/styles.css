@@ -153,7 +153,8 @@ nav button:hover {
 .user-area,
 .row-actions,
 .metrics,
-.checkbox-row {
+.checkbox-row,
+.week-filter {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -229,10 +230,61 @@ nav button:hover {
   background: #fff;
 }
 
+.content-tabs {
+  width: min(520px, 100%);
+}
+
+.visual-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.visual-tabs button {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 4px 10px;
+  align-items: center;
+  min-height: 76px;
+  padding: 14px;
+  border: 1px solid #dce4df;
+  border-radius: 8px;
+  color: #31413c;
+  background: #ffffff;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(31, 49, 42, 0.07);
+}
+
+.visual-tabs button.active,
+.visual-tabs button:hover {
+  border-color: #2a715f;
+  background: #edf5f1;
+}
+
+.visual-tabs svg {
+  grid-row: span 2;
+  color: #2a715f;
+}
+
+.visual-tabs span {
+  font-weight: 900;
+}
+
+.visual-tabs small {
+  min-width: 0;
+  color: #60706b;
+  font-size: 0.84rem;
+}
+
 .content-grid,
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(320px, 0.72fr) minmax(0, 1.28fr);
+  gap: 16px;
+}
+
+.wide-page {
+  display: grid;
   gap: 16px;
 }
 
@@ -252,6 +304,47 @@ nav button:hover {
   border-radius: 8px;
   padding: 18px;
   box-shadow: 0 12px 30px rgba(31, 49, 42, 0.08);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(23, 53, 47, 0.42);
+}
+
+.modal-panel {
+  width: min(860px, 100%);
+  max-height: min(760px, calc(100vh - 40px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  border: 1px solid #dce4df;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(12, 30, 26, 0.28);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e1e8e4;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.modal-body {
+  min-width: 0;
+  overflow: auto;
+  padding: 18px;
 }
 
 .panel h3 {
@@ -275,6 +368,74 @@ nav button:hover {
   font-weight: 700;
 }
 
+.search-box {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid #cbd6d1;
+  border-radius: 8px;
+  padding: 0 11px;
+  background: #fbfdfc;
+}
+
+.search-box:focus-within {
+  border-color: #2a715f;
+  outline: 3px solid rgba(42, 113, 95, 0.14);
+}
+
+.search-box svg {
+  color: #60706b;
+}
+
+.search-box input {
+  min-height: 40px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.search-box input:focus {
+  outline: 0;
+}
+
+.panel > .field {
+  margin-bottom: 12px;
+}
+
+.searchable-select {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  border: 1px solid #cbd6d1;
+  border-radius: 8px;
+  padding: 0 11px;
+  background: #fbfdfc;
+}
+
+.searchable-select:focus-within {
+  border-color: #2a715f;
+  outline: 3px solid rgba(42, 113, 95, 0.14);
+}
+
+.searchable-select svg {
+  color: #60706b;
+}
+
+.searchable-select input {
+  min-height: 40px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.searchable-select input:focus {
+  outline: 0;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -283,7 +444,8 @@ nav button:hover {
 
 .primary,
 .row-actions button,
-.danger-button {
+.danger-button,
+.secondary-button {
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -294,6 +456,84 @@ nav button:hover {
   color: #ffffff;
   background: #2a715f;
   font-weight: 800;
+}
+
+.secondary-button {
+  color: #17352f;
+  background: #edf3f0;
+}
+
+.text-button {
+  min-height: 36px;
+  padding: 6px 8px;
+  color: #2a715f;
+  background: transparent;
+  font-weight: 800;
+}
+
+.full-width {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.planner-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.action-tile {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 72px;
+  padding: 14px;
+  border: 1px solid #dce4df;
+  border-radius: 8px;
+  color: #17352f;
+  background: #fbfdfc;
+  text-align: left;
+}
+
+.action-tile:hover {
+  border-color: #2a715f;
+  background: #edf5f1;
+}
+
+.action-tile svg {
+  color: #2a715f;
+}
+
+.action-tile span {
+  font-weight: 900;
+}
+
+.action-tile strong {
+  min-width: 34px;
+  padding: 6px 8px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: #2a715f;
+  text-align: center;
+}
+
+.week-filter {
+  margin-bottom: 12px;
+}
+
+.week-filter button {
+  min-height: 36px;
+  padding: 8px 11px;
+  border-radius: 8px;
+  color: #31413c;
+  background: #edf3f0;
+  font-weight: 700;
+}
+
+.week-filter button.active {
+  color: #ffffff;
+  background: #2a715f;
 }
 
 .row-actions button {
@@ -389,9 +629,29 @@ nav button:hover {
   font-size: 0.88rem;
 }
 
+.item-title {
+  display: grid;
+  gap: 5px;
+  align-content: center;
+}
+
+.item-title strong,
+.item-title span {
+  display: block;
+}
+
 .recipe-card {
   display: grid;
   gap: 12px;
+}
+
+.clickable-card {
+  cursor: pointer;
+}
+
+.clickable-card:hover {
+  border-color: #2a715f;
+  background: #fbfdfc;
 }
 
 .recipe-card-header {
@@ -403,6 +663,50 @@ nav button:hover {
 .recipe-card p {
   margin: 0;
   color: #52635d;
+}
+
+.recipe-detail-page {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.48fr) minmax(0, 1.52fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.ingredients-summary-panel {
+  align-self: start;
+}
+
+.ingredients-mini-list {
+  display: grid;
+  gap: 6px;
+}
+
+.ingredient-mini-row {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 1px solid #e1e8e4;
+  border-radius: 8px;
+  background: #fbfdfc;
+  font-size: 0.9rem;
+}
+
+.ingredient-mini-row strong,
+.ingredient-mini-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ingredient-mini-row span {
+  color: #60706b;
+  font-size: 0.84rem;
+}
+
+.steps-panel {
+  min-width: 0;
 }
 
 .calendar-grid {
@@ -419,6 +723,11 @@ nav button:hover {
   background: #f5f8f6;
 }
 
+.day-card.completed-day {
+  border-color: #75bd92;
+  background: #ccebd8;
+}
+
 .day-card strong,
 .day-card span {
   display: block;
@@ -430,12 +739,152 @@ nav button:hover {
   font-size: 0.86rem;
 }
 
+.recipe-link {
+  display: block;
+  width: 100%;
+  margin-top: 7px;
+  padding: 0;
+  color: #2a715f;
+  background: transparent;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+.recipe-link:hover {
+  text-decoration: underline;
+}
+
+.dynamic-section {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #e1e8e4;
+  border-radius: 8px;
+  background: #fbfdfc;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dynamic-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.4fr) minmax(120px, 0.5fr) minmax(100px, 0.4fr) 40px;
+  gap: 10px;
+  align-items: end;
+}
+
+.step-row {
+  grid-template-columns: minmax(0, 1fr) 40px;
+}
+
+.compact-data-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.step-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 22px;
+  min-width: 0;
+}
+
+.step-list li {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #e1e8e4;
+  border-radius: 8px;
+  background: #fbfdfc;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.modal-list {
+  margin-top: 12px;
+}
+
+.back-button {
+  margin-bottom: 12px;
+}
+
+.complete-day-button {
+  width: 100%;
+  min-height: 34px;
+  margin-top: 10px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #2a715f;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.complete-day-button:disabled {
+  color: #416456;
+  background: rgba(42, 113, 95, 0.18);
+  opacity: 1;
+}
+
+.quantity-input {
+  max-width: 120px;
+}
+
+.compact-actions {
+  flex-wrap: nowrap;
+}
+
+.password-editor {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(130px, 1fr) 36px 36px;
+  gap: 8px;
+  align-items: center;
+}
+
+.password-editor input {
+  min-height: 36px;
+}
+
+.confirm-button,
+.cancel-button {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+.confirm-button {
+  background: #2f8a5b;
+}
+
+.cancel-button {
+  background: #b4493d;
+}
+
 .notice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
   padding: 12px 14px;
   border: 1px solid #efb5a0;
   border-radius: 8px;
   background: #fff1eb;
   color: #83351f;
+}
+
+.success-notice {
+  border-color: #9acfb5;
+  background: #edf8f2;
+  color: #1f6b47;
 }
 
 .empty-state {
@@ -471,7 +920,8 @@ nav button:hover {
 @media (max-width: 1020px) {
   .app-shell,
   .content-grid,
-  .dashboard-grid {
+  .dashboard-grid,
+  .recipe-detail-page {
     grid-template-columns: 1fr;
   }
 
@@ -485,7 +935,12 @@ nav button:hover {
   }
 
   .data-row,
-  .form-grid {
+  .form-grid,
+  .dynamic-row,
+  .step-row,
+  .password-editor,
+  .planner-actions,
+  .visual-tabs {
     grid-template-columns: 1fr;
   }
 }

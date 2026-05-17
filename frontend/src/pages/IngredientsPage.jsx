@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, Trash2 } from 'lucide-react';
 import { ingredientsApi } from '../api/ingredientsApi.js';
 import { Field } from '../components/ui/Field.jsx';
 import { Panel } from '../components/ui/Panel.jsx';
+import { SearchBox } from '../components/ui/SearchBox.jsx';
 import { useAuth } from '../hooks/useAuth.jsx';
 import { useResource } from '../hooks/useResource.js';
 import { useToast } from '../hooks/useToast.jsx';
+import { confirmDelete } from '../utils/confirmDelete.js';
+import { filterByText } from '../utils/search.js';
 
 const emptyIngredient = {
   name: '',
@@ -26,7 +29,12 @@ export function IngredientsPage() {
   const { showToast } = useToast();
   const { data, loading, error, reload } = useResource(() => ingredientsApi.list(), []);
   const [form, setForm] = useState(emptyIngredient);
+  const [ingredientSearch, setIngredientSearch] = useState('');
   const isAdmin = user.role === 'admin';
+  const filteredIngredients = useMemo(
+    () => filterByText(data, ingredientSearch, (ingredient) => `${ingredient.name} ${ingredient.category} ${ingredient.isGlutenFree ? 'sin gluten' : 'gluten'} ${ingredient.isDiabeticFriendly ? 'diabetico' : 'control'}`),
+    [data, ingredientSearch],
+  );
 
   async function createIngredient(event) {
     event.preventDefault();
@@ -36,8 +44,12 @@ export function IngredientsPage() {
     reload();
   }
 
-  async function deleteIngredient(id) {
-    await ingredientsApi.remove(token, id);
+  async function deleteIngredient(ingredient) {
+    if (!confirmDelete(`el ingrediente "${ingredient.name}"`)) {
+      return;
+    }
+
+    await ingredientsApi.remove(token, ingredient.id);
     showToast('Ingrediente eliminado');
     reload();
   }
@@ -74,10 +86,11 @@ export function IngredientsPage() {
       <Panel title="Catalogo de ingredientes" className={isAdmin ? '' : 'wide'}>
         {loading && <div className="empty-state">Cargando...</div>}
         {error && <div className="notice">{error}</div>}
+        <SearchBox value={ingredientSearch} onChange={setIngredientSearch} placeholder="Buscar por nombre, categoria o restriccion..." />
         <div className="data-list">
-          {data.map((ingredient) => (
+          {filteredIngredients.map((ingredient) => (
             <div className="data-row" key={ingredient.id}>
-              <div>
+              <div className="item-title">
                 <strong>{ingredient.name}</strong>
                 <span>{ingredient.category}</span>
               </div>
@@ -86,7 +99,7 @@ export function IngredientsPage() {
               <span>{ingredient.isGlutenFree ? 'Sin gluten' : 'Gluten'}</span>
               <span>{ingredient.isDiabeticFriendly ? 'Diabetico ok' : 'Control'}</span>
               {isAdmin && (
-                <button type="button" className="icon-button danger" onClick={() => deleteIngredient(ingredient.id)}>
+                <button type="button" className="icon-button danger" onClick={() => deleteIngredient(ingredient)}>
                   <Trash2 size={16} />
                 </button>
               )}

@@ -12,6 +12,7 @@ public static class InventoryEndpoints
         group.MapGet("/", GetAll);
         group.MapGet("/{id:guid}", GetById);
         group.MapPost("/", Create);
+        group.MapPost("/purchase-list", AddPurchaseList);
         group.MapPut("/{id:guid}", Update);
         group.MapDelete("/{id:guid}", Delete);
 
@@ -48,6 +49,24 @@ public static class InventoryEndpoints
         {
             var item = inventory.Create(user, request);
             return Results.Created($"/api/inventory/{item.Id}", InventoryItemDto.From(item));
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
+    }
+
+    private static IResult AddPurchaseList(PurchaseListRequest request, HttpContext context, InventoryService inventory)
+    {
+        var user = EndpointHelpers.CurrentUser(context);
+        if (user is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        try
+        {
+            return Results.Ok(inventory.AddPurchaseList(user, request).Select(InventoryItemDto.From));
         }
         catch (ValidationException exception)
         {

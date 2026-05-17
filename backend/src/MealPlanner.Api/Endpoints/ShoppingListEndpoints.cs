@@ -21,7 +21,19 @@ public static class ShoppingListEndpoints
             return Results.Unauthorized();
         }
 
-        var shoppingList = shoppingLists.CreateFromPlan(user, request.PlanId);
+        var planIds = request.PlanIds is { Length: > 0 }
+            ? request.PlanIds
+            : request.PlanId is null
+                ? Array.Empty<Guid>()
+                : new[] { request.PlanId.Value };
+
+        var shoppingList = shoppingLists.CreateFromPlans(
+            user,
+            planIds,
+            request.PlanId,
+            request.Dates,
+            request.OnlyMissing ?? true);
+
         return shoppingList is null ? Results.NotFound() : Results.Ok(shoppingList);
     }
 }

@@ -24,10 +24,15 @@ export const plansApi = {
       method: 'DELETE',
       headers: authHeaders(token),
     }),
-  shoppingList: (token, planId) =>
+  completeDay: (token, planId, date) =>
+    apiRequest(`/api/plans/${planId}/days/${date}/complete`, {
+      method: 'POST',
+      headers: authHeaders(token),
+    }),
+  shoppingList: (token, planIds, selectedPlanId, dates = [], onlyMissing = true) =>
     apiRequest('/api/shopping-list/from-plan', {
       method: 'POST',
       headers: authHeaders(token),
-      body: JSON.stringify({ planId }),
+      body: JSON.stringify({ planId: selectedPlanId, planIds, dates, onlyMissing }),
     }),
 };

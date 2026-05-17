@@ -4,9 +4,16 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.backend
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ALLOWED_ORIGINS: http://localhost:5173,http://localhost:3000
-      ConnectionStrings__MealPlannerDb: Host=host.docker.internal;Port=5432;Database=meal_planner_db;Username=postgres;Password=admin
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:5173}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-meal.planner.project.no.reply@gmail.com}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-meal.planner.project.no.reply@gmail.com}
+      SMTP_ALLOW_INVALID_CERTIFICATES: ${SMTP_ALLOW_INVALID_CERTIFICATES:-true}
+      ConnectionStrings__MealPlannerDb: ${MEAL_PLANNER_DB:-Host=host.docker.internal;Port=5432;Database=meal_planner_db;Username=postgres;Password=admin}
     ports:
       - "8080:8080"
   frontend:
@@ -14,7 +21,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.frontend
       args:
-        VITE_API_BASE_URL: http://localhost:8080
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
     ports:
       - "5173:80"
     depends_on:

@@ -1,7 +1,14 @@
 import { apiRequest, authHeaders } from './httpClient.js';
 
 export const recipesApi = {
-  list: () => apiRequest('/api/recipes'),
+  list: (token) =>
+    apiRequest('/api/recipes', {
+      headers: authHeaders(token),
+    }),
+  get: (token, id) =>
+    apiRequest(`/api/recipes/${id}`, {
+      headers: authHeaders(token),
+    }),
   saved: (token) =>
     apiRequest('/api/recipes/saved', {
       headers: authHeaders(token),
@@ -21,5 +28,16 @@ export const recipesApi = {
       method: 'POST',
       headers: authHeaders(token),
       body: JSON.stringify(recipe),
+    }),
+  update: (token, id, recipe) =>
+    apiRequest(`/api/recipes/${id}`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify(recipe),
+    }),
+  remove: (token, id) =>
+    apiRequest(`/api/recipes/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders(token),
     }),
 };

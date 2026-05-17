@@ -16,6 +16,7 @@ const pageMeta = {
   dashboard: { label: 'Panel', icon: LayoutDashboard },
   ingredients: { label: 'Ingredientes', icon: Carrot },
   recipes: { label: 'Recetas', icon: Soup },
+  recipeDetail: { label: 'Detalle receta', icon: Soup, showInNav: false },
   inventory: { label: 'Inventario', icon: Warehouse },
   planner: { label: 'Plan mensual', icon: CalendarDays },
   settings: { label: 'Ajustes', icon: Settings },
@@ -32,12 +33,12 @@ export function AppLayout({ activePage, onNavigate, pages, children }) {
           <ChefHat aria-hidden="true" />
           <div>
             <strong>Meal Planner</strong>
-            <span>API PostgreSQL</span>
+            <span>Planificacion nutricional</span>
           </div>
         </div>
 
         <nav aria-label="Navegacion principal">
-          {Object.keys(pages).map((pageKey) => {
+          {Object.keys(pages).filter((pageKey) => pageMeta[pageKey]?.showInNav !== false).map((pageKey) => {
             const Icon = pageMeta[pageKey].icon;
             return (
               <button
@@ -57,7 +58,7 @@ export function AppLayout({ activePage, onNavigate, pages, children }) {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <p>Proyecto integrado</p>
+            <p>Meal Planner</p>
             <h1>{pageMeta[activePage]?.label ?? 'Meal Planner'}</h1>
           </div>
           <div className="user-area">

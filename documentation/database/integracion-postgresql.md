@@ -31,7 +31,7 @@ meal_planner_db
 Abre este archivo:
 
 ```text
-backend/src/MealPlanner.Api/database-setup.txt
+documentation/database/sql/database-setup.sql
 ```
 
 Copia todo el bloque que empieza en:
@@ -50,17 +50,41 @@ Ese script crea:
 - `ingredients`
 - `recipes`
 - `recipe_ingredients`
+- `recipe_steps`
 - `user_saved_recipes`
 - `inventory_items`
 - `meal_plans`
 - `meal_plan_days`
 - `planned_meals`
 
+La tabla `users` incluye tambien los campos de verificacion de correo y recuperacion de password.
+
 Tambien inserta:
 
 - usuario administrador inicial
 - ingredientes base
 - recetas base
+
+## 3.1. Cargar seed grande de recetas
+
+Para pruebas reales ejecuta despues:
+
+```text
+documentation/database/sql/seed-100-recipes.sql
+```
+
+Este script:
+
+- inserta o actualiza ingredientes ampliados
+- inserta o actualiza 100 recetas globales
+- refresca ingredientes de esas recetas
+- refresca pasos de esas recetas
+
+Al final devuelve `recetas_seed_100`. El valor esperado es:
+
+```text
+100
+```
 
 Usuario administrador inicial:
 
@@ -195,6 +219,15 @@ Si entra correctamente, significa que:
 
 ## 10. Problemas frecuentes
 
+### Error porque falta `is_completed`
+
+Si tu BBDD se creo antes de anadir los dias completados, ejecuta esto conectado a `meal_planner_db`:
+
+```sql
+ALTER TABLE meal_plan_days
+ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT FALSE;
+```
+
 ### Error de password
 
 Revisa `appsettings.json`:
@@ -216,7 +249,7 @@ meal_planner_db
 Vuelve a ejecutar el contenido de:
 
 ```text
-backend/src/MealPlanner.Api/database-setup.txt
+documentation/database/sql/database-setup.sql
 ```
 
 conectado a `meal_planner_db`.
@@ -236,3 +269,13 @@ VITE_API_BASE_URL=http://localhost:5088
 ```
 
 Si creas un archivo `.env`, debe tener ese mismo valor.
+
+Con Docker debe apuntar a:
+
+```text
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+### Usuarios creados antes de la verificacion de correo
+
+Si actualizas una BBDD antigua, ejecuta el bloque de actualizacion incluido al final de `database-setup.sql`. Ese bloque anade las columnas de verificacion y marca como verificadas las cuentas existentes que no tienen token pendiente.

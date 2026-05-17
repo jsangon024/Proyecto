@@ -11,6 +11,12 @@ export const inventoryApi = {
       headers: authHeaders(token),
       body: JSON.stringify(item),
     }),
+  purchaseList: (token, items) =>
+    apiRequest('/api/inventory/purchase-list', {
+      method: 'POST',
+      headers: authHeaders(token),
+      body: JSON.stringify({ items }),
+    }),
   update: (token, id, item) =>
     apiRequest(`/api/inventory/${id}`, {
       method: 'PUT',

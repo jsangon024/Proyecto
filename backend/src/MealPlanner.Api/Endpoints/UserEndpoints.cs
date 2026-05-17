@@ -1,6 +1,7 @@
 using MealPlanner.Api.Dtos;
 using MealPlanner.Api.Models;
 using MealPlanner.Api.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MealPlanner.Api.Endpoints;
 
@@ -61,7 +62,7 @@ public static class UserEndpoints
         }
     }
 
-    private static IResult DeleteOwnAccount(HttpContext context, UserService users)
+    private static IResult DeleteOwnAccount([FromBody] DeleteAccountRequest request, HttpContext context, UserService users)
     {
         var user = EndpointHelpers.CurrentUser(context);
         if (user is null)
@@ -69,7 +70,14 @@ public static class UserEndpoints
             return Results.Unauthorized();
         }
 
-        users.DeleteOwnAccount(user);
-        return Results.NoContent();
+        try
+        {
+            users.DeleteOwnAccount(user, request);
+            return Results.NoContent();
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
     }
 }

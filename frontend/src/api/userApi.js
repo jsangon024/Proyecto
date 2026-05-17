@@ -13,9 +13,10 @@ export const userApi = {
       headers: authHeaders(token),
       body: JSON.stringify(payload),
     }),
-  deleteAccount: (token) =>
+  deleteAccount: (token, password) =>
     apiRequest('/api/me', {
       method: 'DELETE',
       headers: authHeaders(token),
+      body: JSON.stringify({ password }),
     }),
 };

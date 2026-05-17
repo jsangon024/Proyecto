@@ -11,6 +11,12 @@ export const adminApi = {
       headers: authHeaders(token),
       body: JSON.stringify({ role }),
     }),
+  changePassword: (token, userId, newPassword, confirmPassword) =>
+    apiRequest(`/api/admin/users/${userId}/password`, {
+      method: 'PUT',
+      headers: authHeaders(token),
+      body: JSON.stringify({ newPassword, confirmPassword }),
+    }),
   removeUser: (token, userId) =>
     apiRequest(`/api/admin/users/${userId}`, {
       method: 'DELETE',

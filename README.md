@@ -1,59 +1,27 @@
 # Meal Planner Project
 
-Aplicacion web para generar planes mensuales de comidas personalizados segun objetivos nutricionales, restricciones alimentarias e inventario domestico.
+La documentacion del proyecto esta centralizada en:
 
-## Estructura
+[documentation/README.md](C:/Users/Usuario/Documents/Codex/2026-05-05/files-mentioned-by-the-user-arranque/meal-planner-project/documentation/README.md)
 
-```text
-meal-planner-project/
-  backend/
-    src/
-      MealPlanner.Api/
-  frontend/
-    src/
-  database/
-    schema/
-  docker/
-  documentation/
-```
+Guia de despliegue:
 
-El backend y el frontend son aplicaciones separadas:
+[documentation/operacion/despliegue.md](C:/Users/Usuario/Documents/Codex/2026-05-05/files-mentioned-by-the-user-arranque/meal-planner-project/documentation/operacion/despliegue.md)
 
-- `backend/`: API REST en .NET 10.
-- `frontend/`: aplicacion React con Vite.
+Plan de pruebas:
 
-## Entrega actual
+[documentation/pruebas/plan-pruebas.md](C:/Users/Usuario/Documents/Codex/2026-05-05/files-mentioned-by-the-user-arranque/meal-planner-project/documentation/pruebas/plan-pruebas.md)
 
-Esta fase cubre:
+Backups:
 
-- Estructura principal del proyecto.
-- Backend .NET con API REST inicial.
-- Frontend React separado del backend.
-- Servicios operativos de autenticacion, recetas, inventario, planificacion y lista de compra.
-- Medidas de seguridad basicas.
-- Documentacion operativa y bitacora.
+[documentation/database/backups.md](C:/Users/Usuario/Documents/Codex/2026-05-05/files-mentioned-by-the-user-arranque/meal-planner-project/documentation/database/backups.md)
 
-Documentos utiles:
-
-- `documentation/operativa.md`
-- `documentation/api-ejemplos.md`
-- `documentation/bitacora.md`
-
-## Requisito para ejecutar
-
-Instalar .NET SDK 10.0 o superior para el backend y Node.js 22 o superior para el frontend.
-
-Backend:
+Arranque rapido con Docker:
 
 ```powershell
-cd backend/src/MealPlanner.Api
-dotnet run
+cd docker
+docker compose up --build
 ```
 
-Frontend:
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
+Frontend: `http://localhost:5173`
+API: `http://localhost:8080`

@@ -14,6 +14,7 @@ public static class PlanEndpoints
         group.MapGet("/latest", GetLatest);
         group.MapGet("/{id:guid}", GetById);
         group.MapDelete("/{id:guid}", Delete);
+        group.MapPost("/{id:guid}/days/{date}/complete", CompleteDay);
 
         return app;
     }
@@ -81,5 +82,24 @@ public static class PlanEndpoints
         }
 
         return planner.Delete(user, id) ? Results.NoContent() : Results.NotFound();
+    }
+
+    private static IResult CompleteDay(Guid id, string date, HttpContext context, MealPlannerService planner)
+    {
+        var user = EndpointHelpers.CurrentUser(context);
+        if (user is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        try
+        {
+            var plan = planner.CompleteDay(user, id, date);
+            return plan is null ? Results.NotFound() : Results.Ok(plan);
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
     }
 }

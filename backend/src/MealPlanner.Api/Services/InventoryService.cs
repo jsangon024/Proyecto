@@ -106,6 +106,51 @@ public sealed class InventoryService
         return true;
     }
 
+    public IReadOnlyCollection<InventoryItemEntity> AddPurchaseList(UserEntity user, PurchaseListRequest request)
+    {
+        if (request.Items.Length == 0)
+        {
+            throw new ValidationException("La lista de compra no contiene ingredientes.");
+        }
+
+        foreach (var purchaseItem in request.Items)
+        {
+            ValidateItem(purchaseItem.IngredientId, purchaseItem.Quantity, purchaseItem.Unit);
+
+            if (!_db.Ingredients.Any(ingredient => ingredient.Id == purchaseItem.IngredientId))
+            {
+                throw new ValidationException("Uno de los ingredientes de la lista no existe.");
+            }
+
+            var unit = purchaseItem.Unit.Trim().ToLowerInvariant();
+            var existing = _db.InventoryItems.FirstOrDefault(item =>
+                item.UserId == user.Id &&
+                item.IngredientId == purchaseItem.IngredientId &&
+                item.Unit == unit);
+
+            if (existing is null)
+            {
+                _db.InventoryItems.Add(new InventoryItemEntity
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = user.Id,
+                    IngredientId = purchaseItem.IngredientId,
+                    Quantity = purchaseItem.Quantity,
+                    Unit = unit,
+                    UpdatedAt = DateTimeOffset.UtcNow
+                });
+            }
+            else
+            {
+                existing.Quantity += purchaseItem.Quantity;
+                existing.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+        }
+
+        _db.SaveChanges();
+        return GetAll(user);
+    }
+
     private static void ValidateItem(Guid ingredientId, decimal quantity, string unit)
     {
         if (ingredientId == Guid.Empty || string.IsNullOrWhiteSpace(unit) || quantity < 0)

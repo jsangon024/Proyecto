@@ -33,6 +33,11 @@ CREATE TABLE users (
     daily_calories INTEGER NOT NULL DEFAULT 2200 CHECK (daily_calories > 0),
     minimum_protein_grams INTEGER NOT NULL DEFAULT 120 CHECK (minimum_protein_grams >= 0),
     excluded_ingredients UUID[] NOT NULL DEFAULT '{}',
+    is_email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    email_verification_token_hash TEXT,
+    email_verification_token_expires_at TIMESTAMPTZ,
+    password_reset_token_hash TEXT,
+    password_reset_token_expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -54,12 +59,21 @@ CREATE TABLE ingredients (
 
 CREATE TABLE recipes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    owner_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001',
     name VARCHAR(200) NOT NULL UNIQUE,
     meal_type VARCHAR(50) NOT NULL CHECK (meal_type IN ('breakfast', 'lunch', 'dinner', 'snack')),
     description TEXT,
     servings INTEGER NOT NULL CHECK (servings > 0),
     tags TEXT[] NOT NULL DEFAULT '{}',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE recipe_steps (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    step_number INTEGER NOT NULL CHECK (step_number > 0),
+    description TEXT NOT NULL,
+    UNIQUE (recipe_id, step_number)
 );
 
 CREATE TABLE recipe_ingredients (
@@ -100,6 +114,7 @@ CREATE TABLE meal_plan_days (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     meal_plan_id UUID NOT NULL REFERENCES meal_plans(id) ON DELETE CASCADE,
     plan_date DATE NOT NULL,
+    is_completed BOOLEAN NOT NULL DEFAULT FALSE,
     UNIQUE (meal_plan_id, plan_date)
 );
 
@@ -113,6 +128,8 @@ CREATE TABLE planned_meals (
 
 CREATE INDEX idx_ingredients_name ON ingredients(name);
 CREATE INDEX idx_recipes_meal_type ON recipes(meal_type);
+CREATE INDEX idx_recipes_owner_id ON recipes(owner_id);
+CREATE INDEX idx_recipe_steps_recipe_id ON recipe_steps(recipe_id);
 CREATE INDEX idx_recipe_ingredients_recipe_id ON recipe_ingredients(recipe_id);
 CREATE INDEX idx_recipe_ingredients_ingredient_id ON recipe_ingredients(ingredient_id);
 CREATE INDEX idx_user_saved_recipes_user_id ON user_saved_recipes(user_id);
@@ -127,13 +144,15 @@ INSERT INTO users (
     password_hash,
     role,
     daily_calories,
-    minimum_protein_grams
+    minimum_protein_grams,
+    is_email_verified
 ) VALUES (
     'admin@example.com',
     '100000.l6Hu71i2/86r0NNp8rtlXg==.C177U2L3I1Gaml4pWKVcBvsf7+bLdL7TV9Afy3vNwnQ=',
     'admin',
     2200,
-    120
+    120,
+    TRUE
 );
 
 INSERT INTO ingredients (
@@ -227,6 +246,72 @@ UNION ALL
 SELECT recipe.id, ingredients.id, 100, 'g' FROM recipe, ingredients WHERE ingredients.name = 'tomate'
 UNION ALL
 SELECT recipe.id, ingredients.id, 80, 'g' FROM recipe, ingredients WHERE ingredients.name = 'pepino';
+
+INSERT INTO recipe_steps (recipe_id, step_number, description)
+SELECT id, 1, 'Preparar y pesar todos los ingredientes.' FROM recipes
+UNION ALL
+SELECT id, 2, 'Cocinar o montar la receta siguiendo el metodo indicado en la descripcion.' FROM recipes
+UNION ALL
+SELECT id, 3, 'Servir en la racion indicada y conservar sobrantes si los hubiera.' FROM recipes;
+
+-- ============================================================
+-- Actualizacion para BBDD ya creada
+-- Ejecutar si ya tenias la BBDD creada antes de estos cambios.
+-- Para rellenar pasos detallados de las recetas de prueba, ejecuta tambien:
+-- documentation/database/sql/recipe-steps-seed.sql
+-- Para cargar un conjunto amplio de pruebas reales, ejecuta despues:
+-- documentation/database/sql/seed-100-recipes.sql
+-- ============================================================
+
+ALTER TABLE meal_plan_days
+ADD COLUMN IF NOT EXISTS is_completed BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE recipes
+ADD COLUMN IF NOT EXISTS owner_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000001';
+
+CREATE TABLE IF NOT EXISTS recipe_steps (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    recipe_id UUID NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+    step_number INTEGER NOT NULL CHECK (step_number > 0),
+    description TEXT NOT NULL,
+    UNIQUE (recipe_id, step_number)
+);
+
+CREATE INDEX IF NOT EXISTS idx_recipes_owner_id ON recipes(owner_id);
+CREATE INDEX IF NOT EXISTS idx_recipe_steps_recipe_id ON recipe_steps(recipe_id);
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS is_email_verified BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS email_verification_token_hash TEXT;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS email_verification_token_expires_at TIMESTAMPTZ;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS password_reset_token_hash TEXT;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS password_reset_token_expires_at TIMESTAMPTZ;
+
+UPDATE users
+SET is_email_verified = TRUE
+WHERE is_email_verified = FALSE
+  AND email_verification_token_hash IS NULL;
+
+INSERT INTO recipe_steps (recipe_id, step_number, description)
+SELECT r.id, 1, 'Preparar y pesar todos los ingredientes.'
+FROM recipes r
+WHERE NOT EXISTS (SELECT 1 FROM recipe_steps rs WHERE rs.recipe_id = r.id)
+UNION ALL
+SELECT r.id, 2, 'Cocinar o montar la receta siguiendo el metodo indicado en la descripcion.'
+FROM recipes r
+WHERE NOT EXISTS (SELECT 1 FROM recipe_steps rs WHERE rs.recipe_id = r.id)
+UNION ALL
+SELECT r.id, 3, 'Servir en la racion indicada y conservar sobrantes si los hubiera.'
+FROM recipes r
+WHERE NOT EXISTS (SELECT 1 FROM recipe_steps rs WHERE rs.recipe_id = r.id);
 
 -- ============================================================
 -- Consulta util: recetas con nutricion calculada

@@ -11,16 +11,19 @@ public static class AuthEndpoints
 
         group.MapPost("/register", Register);
         group.MapPost("/login", Login);
+        group.MapPost("/verify-email", VerifyEmail);
+        group.MapPost("/forgot-password", ForgotPassword);
+        group.MapPost("/reset-password", ResetPassword);
 
         return app;
     }
 
-    private static IResult Register(RegisterRequest request, AuthService auth)
+    private static async Task<IResult> Register(RegisterRequest request, AuthService auth)
     {
         try
         {
-            var response = auth.Register(request);
-            return Results.Created($"/api/users/{response.User.Id}", response);
+            var response = await auth.RegisterAsync(request);
+            return Results.Created("/api/auth/register", response);
         }
         catch (ConflictException exception)
         {
@@ -34,7 +37,52 @@ public static class AuthEndpoints
 
     private static IResult Login(LoginRequest request, AuthService auth)
     {
-        var response = auth.Login(request);
-        return response is null ? Results.Unauthorized() : Results.Ok(response);
+        try
+        {
+            var response = auth.Login(request);
+            return response is null
+                ? Results.Json(new ErrorResponse("Email o password incorrectos."), statusCode: StatusCodes.Status401Unauthorized)
+                : Results.Ok(response);
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
+    }
+
+    private static IResult VerifyEmail(VerifyEmailRequest request, AuthService auth)
+    {
+        try
+        {
+            return Results.Ok(auth.VerifyEmail(request));
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
+    }
+
+    private static async Task<IResult> ForgotPassword(ForgotPasswordRequest request, AuthService auth)
+    {
+        try
+        {
+            return Results.Ok(await auth.ForgotPasswordAsync(request));
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
+    }
+
+    private static IResult ResetPassword(ResetPasswordRequest request, AuthService auth)
+    {
+        try
+        {
+            return Results.Ok(auth.ResetPassword(request));
+        }
+        catch (ValidationException exception)
+        {
+            return EndpointHelpers.ValidationError(exception);
+        }
     }
 }

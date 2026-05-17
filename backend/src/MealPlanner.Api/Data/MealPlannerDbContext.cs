@@ -18,6 +18,8 @@ public sealed class MealPlannerDbContext : DbContext
 
     public DbSet<RecipeIngredientEntity> RecipeIngredients => Set<RecipeIngredientEntity>();
 
+    public DbSet<RecipeStepEntity> RecipeSteps => Set<RecipeStepEntity>();
+
     public DbSet<UserSavedRecipeEntity> UserSavedRecipes => Set<UserSavedRecipeEntity>();
 
     public DbSet<InventoryItemEntity> InventoryItems => Set<InventoryItemEntity>();
@@ -41,6 +43,11 @@ public sealed class MealPlannerDbContext : DbContext
             entity.Property(user => user.DailyCalories).HasColumnName("daily_calories");
             entity.Property(user => user.MinimumProteinGrams).HasColumnName("minimum_protein_grams");
             entity.Property(user => user.ExcludedIngredients).HasColumnName("excluded_ingredients");
+            entity.Property(user => user.IsEmailVerified).HasColumnName("is_email_verified");
+            entity.Property(user => user.EmailVerificationTokenHash).HasColumnName("email_verification_token_hash");
+            entity.Property(user => user.EmailVerificationTokenExpiresAt).HasColumnName("email_verification_token_expires_at");
+            entity.Property(user => user.PasswordResetTokenHash).HasColumnName("password_reset_token_hash");
+            entity.Property(user => user.PasswordResetTokenExpiresAt).HasColumnName("password_reset_token_expires_at");
             entity.Property(user => user.CreatedAt).HasColumnName("created_at");
         });
 
@@ -68,6 +75,7 @@ public sealed class MealPlannerDbContext : DbContext
             entity.ToTable("recipes");
             entity.HasKey(recipe => recipe.Id);
             entity.Property(recipe => recipe.Id).HasColumnName("id");
+            entity.Property(recipe => recipe.OwnerId).HasColumnName("owner_id");
             entity.Property(recipe => recipe.Name).HasColumnName("name").HasMaxLength(200);
             entity.Property(recipe => recipe.MealType).HasColumnName("meal_type").HasMaxLength(50);
             entity.Property(recipe => recipe.Description).HasColumnName("description");
@@ -77,6 +85,9 @@ public sealed class MealPlannerDbContext : DbContext
             entity.HasMany(recipe => recipe.Ingredients)
                 .WithOne(recipeIngredient => recipeIngredient.Recipe)
                 .HasForeignKey(recipeIngredient => recipeIngredient.RecipeId);
+            entity.HasMany(recipe => recipe.Steps)
+                .WithOne(step => step.Recipe)
+                .HasForeignKey(step => step.RecipeId);
         });
 
         modelBuilder.Entity<RecipeIngredientEntity>(entity =>
@@ -91,6 +102,16 @@ public sealed class MealPlannerDbContext : DbContext
             entity.HasOne(recipeIngredient => recipeIngredient.Ingredient)
                 .WithMany()
                 .HasForeignKey(recipeIngredient => recipeIngredient.IngredientId);
+        });
+
+        modelBuilder.Entity<RecipeStepEntity>(entity =>
+        {
+            entity.ToTable("recipe_steps");
+            entity.HasKey(step => step.Id);
+            entity.Property(step => step.Id).HasColumnName("id");
+            entity.Property(step => step.RecipeId).HasColumnName("recipe_id");
+            entity.Property(step => step.StepNumber).HasColumnName("step_number");
+            entity.Property(step => step.Description).HasColumnName("description");
         });
 
         modelBuilder.Entity<UserSavedRecipeEntity>(entity =>
@@ -138,6 +159,7 @@ public sealed class MealPlannerDbContext : DbContext
             entity.Property(day => day.Id).HasColumnName("id");
             entity.Property(day => day.MealPlanId).HasColumnName("meal_plan_id");
             entity.Property(day => day.PlanDate).HasColumnName("plan_date");
+            entity.Property(day => day.IsCompleted).HasColumnName("is_completed");
             entity.HasMany(day => day.Meals)
                 .WithOne(meal => meal.MealPlanDay)
                 .HasForeignKey(meal => meal.MealPlanDayId);

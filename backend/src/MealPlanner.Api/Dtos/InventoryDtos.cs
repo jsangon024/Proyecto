@@ -13,3 +13,7 @@ public sealed record InventoryItemDto(Guid Id, Guid IngredientId, string Ingredi
 public sealed record InventoryCreateRequest(Guid IngredientId, decimal Quantity, string Unit);
 
 public sealed record InventoryUpdateRequest(Guid IngredientId, decimal Quantity, string Unit);
+
+public sealed record PurchaseListRequest(PurchaseListItemRequest[] Items);
+
+public sealed record PurchaseListItemRequest(Guid IngredientId, decimal Quantity, string Unit);

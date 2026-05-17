@@ -1,9 +1,11 @@
 using MealPlanner.Api.Data.Entities;
+using MealPlanner.Api.Services;
 
 namespace MealPlanner.Api.Dtos;
 
 public sealed record RecipeDto(
     Guid Id,
+    Guid OwnerId,
     string Name,
     string MealType,
     string? Description,
@@ -13,7 +15,9 @@ public sealed record RecipeDto(
     bool IsDiabeticFriendly,
     int Servings,
     string[] Tags,
-    RecipeIngredientDto[] Ingredients)
+    RecipeIngredientDto[] Ingredients,
+    RecipeStepDto[] Steps,
+    bool IsGlobal)
 {
     public static RecipeDto From(RecipeEntity recipe)
     {
@@ -24,6 +28,7 @@ public sealed record RecipeDto(
 
         return new RecipeDto(
             recipe.Id,
+            recipe.OwnerId,
             recipe.Name,
             recipe.MealType,
             recipe.Description,
@@ -33,7 +38,12 @@ public sealed record RecipeDto(
             ingredients.Length > 0 && ingredients.All(item => item.IsDiabeticFriendly),
             recipe.Servings,
             recipe.Tags,
-            ingredients);
+            ingredients,
+            recipe.Steps
+                .OrderBy(step => step.StepNumber)
+                .Select(RecipeStepDto.From)
+                .ToArray(),
+            recipe.OwnerId == RecipeService.GlobalOwnerId);
     }
 }
 
@@ -68,7 +78,8 @@ public sealed record RecipeCreateRequest(
     string? Description,
     int Servings,
     string[] Tags,
-    RecipeIngredientRequest[] Ingredients);
+    RecipeIngredientRequest[] Ingredients,
+    RecipeStepRequest[] Steps);
 
 public sealed record RecipeUpdateRequest(
     string Name,
@@ -76,9 +87,20 @@ public sealed record RecipeUpdateRequest(
     string? Description,
     int Servings,
     string[] Tags,
-    RecipeIngredientRequest[] Ingredients);
+    RecipeIngredientRequest[] Ingredients,
+    RecipeStepRequest[] Steps);
 
 public sealed record RecipeIngredientRequest(Guid IngredientId, decimal Quantity, string Unit);
+
+public sealed record RecipeStepDto(int StepNumber, string Description)
+{
+    public static RecipeStepDto From(RecipeStepEntity step)
+    {
+        return new RecipeStepDto(step.StepNumber, step.Description);
+    }
+}
+
+public sealed record RecipeStepRequest(string Description);
 
 public static class NutritionCalculator
 {

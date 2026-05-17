@@ -81,12 +81,45 @@ public sealed class MealPlannerService
         return true;
     }
 
+    public MealPlanDto? CompleteDay(UserEntity user, Guid planId, string date)
+    {
+        if (!DateOnly.TryParse(date, out var planDate))
+        {
+            throw new ValidationException("La fecha del dia no es valida.");
+        }
+
+        var plan = _db.MealPlans
+            .IncludeFullPlan()
+            .FirstOrDefault(candidate => candidate.Id == planId && candidate.UserId == user.Id);
+
+        if (plan is null)
+        {
+            return null;
+        }
+
+        var day = plan.Days.FirstOrDefault(candidate => candidate.PlanDate == planDate);
+        if (day is null)
+        {
+            return null;
+        }
+
+        if (!day.IsCompleted)
+        {
+            SubtractDayIngredientsFromInventory(user, day);
+            day.IsCompleted = true;
+            _db.SaveChanges();
+        }
+
+        return ToDto(plan);
+    }
+
     private RecipeEntity[] FindAvailableRecipes(UserEntity user)
     {
         var query = _db.Recipes
             .AsNoTracking()
             .Include(recipe => recipe.Ingredients)
             .ThenInclude(recipeIngredient => recipeIngredient.Ingredient)
+            .Where(recipe => recipe.OwnerId == RecipeService.GlobalOwnerId || recipe.OwnerId == user.Id)
             .AsQueryable();
 
         if (user.ExcludedIngredients.Length > 0)
@@ -123,7 +156,8 @@ public sealed class MealPlannerService
             var planDay = new MealPlanDayEntity
             {
                 Id = Guid.NewGuid(),
-                PlanDate = new DateOnly(year, month, day)
+                PlanDate = new DateOnly(year, month, day),
+                IsCompleted = false
             };
 
             foreach (var mealType in mealTypes.Select((value, index) => new { value, index }))
@@ -162,6 +196,7 @@ public sealed class MealPlannerService
                 .OrderBy(day => day.PlanDate)
                 .Select(day => new MealPlanDayDto(
                     day.PlanDate.ToString("yyyy-MM-dd"),
+                    day.IsCompleted,
                     day.Meals
                         .OrderBy(meal => meal.MealType)
                         .Select(meal =>
@@ -181,6 +216,34 @@ public sealed class MealPlannerService
             item.Ingredient is null ? 0 : NutritionCalculator.CalculateByQuantity(item.Ingredient.ProteinPer100G, item.Quantity, item.Unit));
 
         return (calories, protein);
+    }
+
+    private void SubtractDayIngredientsFromInventory(UserEntity user, MealPlanDayEntity day)
+    {
+        foreach (var meal in day.Meals)
+        {
+            if (meal.Recipe is null)
+            {
+                continue;
+            }
+
+            foreach (var recipeIngredient in meal.Recipe.Ingredients)
+            {
+                var unit = recipeIngredient.Unit.Trim().ToLowerInvariant();
+                var inventoryItem = _db.InventoryItems.FirstOrDefault(item =>
+                    item.UserId == user.Id &&
+                    item.IngredientId == recipeIngredient.IngredientId &&
+                    item.Unit == unit);
+
+                if (inventoryItem is null)
+                {
+                    continue;
+                }
+
+                inventoryItem.Quantity = Math.Max(0, inventoryItem.Quantity - recipeIngredient.Quantity);
+                inventoryItem.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+        }
     }
 }
 
