@@ -77,6 +77,12 @@ Respuesta esperada:
 }
 ```
 
+URL publica actual de Railway:
+
+```text
+https://proyecto-production-c7a3.up.railway.app
+```
+
 ## Pasos con Railway CLI
 
 Si tienes Railway CLI instalado y autenticado:

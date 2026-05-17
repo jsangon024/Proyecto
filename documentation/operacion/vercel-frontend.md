@@ -15,10 +15,9 @@ vercel.json
 Configuracion:
 
 - Framework: Vite.
-- Carpeta raiz del frontend: `frontend`.
-- Comando de instalacion: `npm install`.
-- Comando de build: `npm run build`.
-- Carpeta de salida: `dist`.
+- Comando de instalacion: `cd frontend && npm install`.
+- Comando de build: `cd frontend && npm run build`.
+- Carpeta de salida: `frontend/dist`.
 
 ## Variable necesaria en Vercel
 
@@ -31,7 +30,7 @@ VITE_API_BASE_URL=https://URL_DE_RAILWAY
 Ejemplo:
 
 ```text
-VITE_API_BASE_URL=https://meal-planner-api-production.up.railway.app
+VITE_API_BASE_URL=https://proyecto-production-c7a3.up.railway.app
 ```
 
 No debe terminar en `/api`, porque el cliente frontend ya llama a rutas como `/api/auth/login`.
@@ -41,7 +40,7 @@ No debe terminar en `/api`, porque el cliente frontend ya llama a rutas como `/a
 1. Entrar en Vercel.
 2. Crear `Add New Project`.
 3. Importar repositorio `jsangon024/Proyecto`.
-4. Confirmar que la raiz es `frontend` o que Vercel usa `vercel.json`.
+4. Mantener la raiz del proyecto en la raiz del repositorio. `vercel.json` entra en `frontend` durante instalacion y build.
 5. Anadir variable `VITE_API_BASE_URL`.
 6. Ejecutar deploy.
 7. Copiar la URL publica del frontend.
@@ -87,4 +86,10 @@ Comprueba:
 
 ```text
 https://URL_DE_RAILWAY/api/health
+```
+
+URL actual de la API:
+
+```text
+https://proyecto-production-c7a3.up.railway.app/api/health
 ```
