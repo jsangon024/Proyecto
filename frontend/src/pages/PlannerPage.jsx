@@ -1,4 +1,4 @@
-import { Ban, CalendarDays, ClipboardList, PackageCheck, ShoppingBasket, Target, Trash2 } from 'lucide-react';
+import { Ban, CalendarDays, ClipboardList, PackageCheck, ShoppingBasket, Target, Trash2, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { ingredientsApi } from '../api/ingredientsApi.js';
 import { inventoryApi } from '../api/inventoryApi.js';
@@ -53,11 +53,10 @@ export function PlannerPage({ onNavigate }) {
     () => filterByText(ingredients, forbiddenSearch, (ingredient) => `${ingredient.name} ${ingredient.category ?? ''}`),
     [ingredients, forbiddenSearch],
   );
-  const excludedIngredientNames = useMemo(
+  const selectedForbiddenIngredients = useMemo(
     () => ingredients
       .filter((ingredient) => draftExcludedIngredients.includes(ingredient.id))
-      .map((ingredient) => ingredient.name)
-      .sort((left, right) => left.localeCompare(right)),
+      .sort((left, right) => left.name.localeCompare(right.name)),
     [ingredients, draftExcludedIngredients],
   );
 
@@ -151,6 +150,10 @@ export function PlannerPage({ onNavigate }) {
       : [...draftExcludedIngredients, ingredientId];
 
     setDraftExcludedIngredients(excludedIngredients);
+  }
+
+  function removeDraftExcludedIngredient(ingredientId) {
+    setDraftExcludedIngredients(draftExcludedIngredients.filter((id) => id !== ingredientId));
   }
 
   async function saveForbiddenIngredients() {
@@ -392,10 +395,20 @@ export function PlannerPage({ onNavigate }) {
             </p>
             {ingredientsError && <div className="notice">{ingredientsError}</div>}
             <SearchBox value={forbiddenSearch} onChange={setForbiddenSearch} placeholder="Buscar alimento..." />
-            {excludedIngredientNames.length > 0 && (
+            {selectedForbiddenIngredients.length > 0 && (
               <div className="selected-summary">
-                {excludedIngredientNames.map((name) => (
-                  <span key={name}>{name}</span>
+                {selectedForbiddenIngredients.map((ingredient) => (
+                  <span className="selected-chip" key={ingredient.id}>
+                    {ingredient.name}
+                    <button
+                      type="button"
+                      className="selected-chip-remove"
+                      aria-label={`Quitar ${ingredient.name} de alimentos prohibidos`}
+                      onClick={() => removeDraftExcludedIngredient(ingredient.id)}
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
                 ))}
               </div>
             )}

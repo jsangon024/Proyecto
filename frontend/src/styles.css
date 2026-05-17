@@ -816,13 +816,39 @@ nav button:hover {
   gap: 8px;
 }
 
-.selected-summary span {
-  padding: 7px 10px;
+.selected-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 28px 8px 10px;
   border-radius: 999px;
   color: #17352f;
   background: #edf3f0;
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.selected-chip-remove {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d7e1dc;
+  border-radius: 999px;
+  color: #9b2f1f;
+  background: #ffffff;
+  box-shadow: 0 2px 7px rgba(31, 49, 42, 0.14);
+}
+
+.selected-chip-remove:hover {
+  color: #ffffff;
+  background: #a43a27;
 }
 
 .forbidden-list {
