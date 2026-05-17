@@ -23,7 +23,7 @@ src/
 - Ingredientes.
 - Recetas con catalogo, creacion, edicion y detalle.
 - Inventario.
-- Plan mensual.
+- Plan mensual con objetivos nutricionales, alimentos prohibidos, planes guardados y lista de compra.
 - Ajustes de cuenta.
 - Administracion de usuarios.
 
@@ -54,6 +54,8 @@ VITE_API_BASE_URL=http://localhost:8080
 Usa `http://localhost:8080` con Docker y `http://localhost:5088` si ejecutas la API con `dotnet run`.
 
 El registro no inicia sesion automaticamente. Tras crear la cuenta, el usuario debe abrir el enlace de activacion recibido por correo.
+
+En Gestion del plan, el usuario puede marcar alimentos prohibidos desde el catalogo global de ingredientes. Esa seleccion se guarda en su perfil y se envia a la API junto con sus objetivos nutricionales.
 
 ## Ejecutar
 

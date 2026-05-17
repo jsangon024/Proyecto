@@ -18,7 +18,7 @@ El proyecto se encuentra en fase de entrega final desplegada. La funcionalidad p
 - Recetas globales y recetas propias por usuario.
 - Recetas con ingredientes multiples y pasos multiples.
 - Inventario personal editable.
-- Plan mensual guardado por usuario.
+- Plan mensual guardado por usuario, con objetivos nutricionales y alimentos prohibidos.
 - Lista de compra por planes guardados y filtro semanal.
 - Marcado de dias completados con descuento de inventario.
 - Docker Compose para ejecucion local.

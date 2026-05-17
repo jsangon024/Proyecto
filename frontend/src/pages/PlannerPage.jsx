@@ -1,5 +1,6 @@
-import { CalendarDays, ClipboardList, PackageCheck, ShoppingBasket, Target, Trash2 } from 'lucide-react';
+import { Ban, CalendarDays, ClipboardList, PackageCheck, ShoppingBasket, Target, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { ingredientsApi } from '../api/ingredientsApi.js';
 import { inventoryApi } from '../api/inventoryApi.js';
 import { plansApi } from '../api/plansApi.js';
 import { userApi } from '../api/userApi.js';
@@ -22,12 +23,18 @@ export function PlannerPage({ onNavigate }) {
   const [shoppingList, setShoppingList] = useState([]);
   const [weeks, setWeeks] = useState([]);
   const [selectedWeeks, setSelectedWeeks] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
+  const [draftExcludedIngredients, setDraftExcludedIngredients] = useState([]);
   const [planSearch, setPlanSearch] = useState('');
   const [shoppingSearch, setShoppingSearch] = useState('');
+  const [forbiddenSearch, setForbiddenSearch] = useState('');
   const [plansModalOpen, setPlansModalOpen] = useState(false);
   const [shoppingModalOpen, setShoppingModalOpen] = useState(false);
+  const [forbiddenModalOpen, setForbiddenModalOpen] = useState(false);
   const [loadingPlans, setLoadingPlans] = useState(true);
+  const [loadingIngredients, setLoadingIngredients] = useState(true);
   const [plansError, setPlansError] = useState('');
+  const [ingredientsError, setIngredientsError] = useState('');
   const [form, setForm] = useState({ year: today.getFullYear(), month: today.getMonth() + 1 });
   const [goals, setGoals] = useState({
     dailyCalories: user.goals.dailyCalories,
@@ -42,9 +49,21 @@ export function PlannerPage({ onNavigate }) {
     () => filterByText(shoppingList, shoppingSearch, (item) => `${item.name} ${item.quantity} ${item.unit}`),
     [shoppingList, shoppingSearch],
   );
+  const filteredForbiddenIngredients = useMemo(
+    () => filterByText(ingredients, forbiddenSearch, (ingredient) => `${ingredient.name} ${ingredient.category ?? ''}`),
+    [ingredients, forbiddenSearch],
+  );
+  const excludedIngredientNames = useMemo(
+    () => ingredients
+      .filter((ingredient) => draftExcludedIngredients.includes(ingredient.id))
+      .map((ingredient) => ingredient.name)
+      .sort((left, right) => left.localeCompare(right)),
+    [ingredients, draftExcludedIngredients],
+  );
 
   useEffect(() => {
     loadSavedPlans();
+    loadIngredients();
   }, [token]);
 
   async function loadSavedPlans() {
@@ -60,6 +79,18 @@ export function PlannerPage({ onNavigate }) {
       setPlansError(caught.message);
     } finally {
       setLoadingPlans(false);
+    }
+  }
+
+  async function loadIngredients() {
+    setLoadingIngredients(true);
+    setIngredientsError('');
+    try {
+      setIngredients(await ingredientsApi.list());
+    } catch (caught) {
+      setIngredientsError(caught.message);
+    } finally {
+      setLoadingIngredients(false);
     }
   }
 
@@ -96,13 +127,43 @@ export function PlannerPage({ onNavigate }) {
 
   async function saveGoals(event) {
     event.preventDefault();
-    const updatedUser = await userApi.updateGoals(token, {
+    const updatedUser = await persistGoals();
+    updateUser(updatedUser);
+    showToast('Objetivos actualizados');
+  }
+
+  async function persistGoals() {
+    return userApi.updateGoals(token, {
       dailyCalories: Number(goals.dailyCalories),
       minimumProteinGrams: Number(goals.minimumProteinGrams),
       excludedIngredients: goals.excludedIngredients,
     });
+  }
+
+  function openForbiddenModal() {
+    setDraftExcludedIngredients(goals.excludedIngredients);
+    setForbiddenModalOpen(true);
+  }
+
+  function toggleDraftExcludedIngredient(ingredientId) {
+    const excludedIngredients = draftExcludedIngredients.includes(ingredientId)
+      ? draftExcludedIngredients.filter((id) => id !== ingredientId)
+      : [...draftExcludedIngredients, ingredientId];
+
+    setDraftExcludedIngredients(excludedIngredients);
+  }
+
+  async function saveForbiddenIngredients() {
+    const updatedGoals = { ...goals, excludedIngredients: draftExcludedIngredients };
+    const updatedUser = await userApi.updateGoals(token, {
+      dailyCalories: Number(updatedGoals.dailyCalories),
+      minimumProteinGrams: Number(updatedGoals.minimumProteinGrams),
+      excludedIngredients: updatedGoals.excludedIngredients,
+    });
+    setGoals(updatedGoals);
     updateUser(updatedUser);
-    showToast('Objetivos actualizados');
+    setForbiddenModalOpen(false);
+    showToast('Alimentos prohibidos actualizados');
   }
 
   async function generate(event) {
@@ -227,6 +288,11 @@ export function PlannerPage({ onNavigate }) {
             <span>Lista de compra</span>
             <strong>{shoppingList.length}</strong>
           </button>
+          <button type="button" className="action-tile" onClick={openForbiddenModal}>
+            <Ban size={22} />
+            <span>Alimentos prohibidos</span>
+            <strong>{goals.excludedIngredients.length}</strong>
+          </button>
         </div>
       </Panel>
 
@@ -315,6 +381,50 @@ export function PlannerPage({ onNavigate }) {
             <PackageCheck size={18} />
             Pasar compra al inventario
           </button>
+        </Modal>
+      )}
+
+      {forbiddenModalOpen && (
+        <Modal title="Alimentos prohibidos" onClose={() => setForbiddenModalOpen(false)}>
+          <div className="stack">
+            <p className="muted">
+              Los alimentos marcados se guardan en tu perfil y el generador no usara recetas que los contengan.
+            </p>
+            {ingredientsError && <div className="notice">{ingredientsError}</div>}
+            <SearchBox value={forbiddenSearch} onChange={setForbiddenSearch} placeholder="Buscar alimento..." />
+            {excludedIngredientNames.length > 0 && (
+              <div className="selected-summary">
+                {excludedIngredientNames.map((name) => (
+                  <span key={name}>{name}</span>
+                ))}
+              </div>
+            )}
+            {loadingIngredients ? (
+              <div className="empty-state">Cargando ingredientes...</div>
+            ) : (
+              <div className="forbidden-list">
+                {filteredForbiddenIngredients.length === 0 && (
+                  <div className="empty-state">No hay ingredientes que coincidan con la busqueda.</div>
+                )}
+                {filteredForbiddenIngredients.map((ingredient) => (
+                  <label className="forbidden-row" key={ingredient.id}>
+                    <input
+                      type="checkbox"
+                      checked={draftExcludedIngredients.includes(ingredient.id)}
+                      onChange={() => toggleDraftExcludedIngredient(ingredient.id)}
+                    />
+                    <span>
+                      <strong>{ingredient.name}</strong>
+                      {ingredient.category && <small>{ingredient.category}</small>}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <button type="button" className="primary full-width" onClick={saveForbiddenIngredients}>
+              Guardar alimentos prohibidos
+            </button>
+          </div>
         </Modal>
       )}
     </section>

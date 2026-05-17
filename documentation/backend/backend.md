@@ -5,13 +5,13 @@ API REST en .NET 10 para la gestion de usuarios, ingredientes, recetas, inventar
 ## Responsabilidades
 
 - Autenticacion, registro con verificacion por correo y recuperacion de password.
-- Perfil de usuario y objetivos nutricionales.
+- Perfil de usuario, objetivos nutricionales y alimentos prohibidos.
 - Administracion de usuarios.
 - Catalogo de ingredientes globales.
 - Recetas globales de administrador y recetas propias de usuario.
 - Pasos e ingredientes de recetas.
 - Inventario personal.
-- Generacion y consulta de planes mensuales.
+- Generacion y consulta de planes mensuales, excluyendo recetas con alimentos prohibidos por el usuario.
 - Lista de compra a partir de todos los planes guardados.
 
 ## Capas
@@ -77,3 +77,5 @@ En despliegues cloud se usa Resend mediante `RESEND_API_KEY`. SMTP queda como al
 ## Notas
 
 Los tokens de sesion expiran a las 8 horas. En produccion debe mantenerse estable `TOKEN_SIGNING_KEY` para que las sesiones sigan siendo validas tras reinicios del backend.
+
+La lista `excludedIngredients` del perfil se almacena en `users.excluded_ingredients`. Al generar un plan, `MealPlannerService` filtra cualquier receta que contenga alguno de esos ingredientes.

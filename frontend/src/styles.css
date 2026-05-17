@@ -478,7 +478,7 @@ nav button:hover {
 
 .planner-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
 
@@ -808,6 +808,67 @@ nav button:hover {
 
 .modal-list {
   margin-top: 12px;
+}
+
+.selected-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-summary span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #17352f;
+  background: #edf3f0;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.forbidden-list {
+  max-height: 360px;
+  display: grid;
+  gap: 8px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.forbidden-row {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 11px 12px;
+  border: 1px solid #e1e8e4;
+  border-radius: 8px;
+  background: #fbfdfc;
+  cursor: pointer;
+}
+
+.forbidden-row:hover {
+  border-color: #2a715f;
+  background: #edf5f1;
+}
+
+.forbidden-row input {
+  width: 18px;
+  min-height: 18px;
+}
+
+.forbidden-row span,
+.forbidden-row strong,
+.forbidden-row small {
+  min-width: 0;
+}
+
+.forbidden-row strong,
+.forbidden-row small {
+  display: block;
+}
+
+.forbidden-row small {
+  margin-top: 3px;
+  color: #60706b;
 }
 
 .back-button {
