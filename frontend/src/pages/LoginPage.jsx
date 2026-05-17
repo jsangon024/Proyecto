@@ -9,9 +9,9 @@ export function LoginPage() {
   const { login, register } = useAuth();
   const { loading, error, run } = useAsyncAction();
   const [mode, setMode] = useState('login');
-  const [email, setEmail] = useState('admin@example.com');
-  const [password, setPassword] = useState('Admin123!');
-  const [confirmPassword, setConfirmPassword] = useState('Admin123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
 
   async function submit(event) {
@@ -68,17 +68,28 @@ export function LoginPage() {
 
         <form className="stack" onSubmit={submit}>
           <Field label="Email">
-            <input value={email} onChange={(event) => setEmail(event.target.value)} />
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
           </Field>
           {mode !== 'forgot' && (
             <Field label="Password">
-              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+              <input
+                type="password"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
             </Field>
           )}
           {mode === 'register' && (
             <Field label="Confirmar password">
               <input
                 type="password"
+                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
               />
