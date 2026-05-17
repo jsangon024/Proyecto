@@ -20,6 +20,7 @@ Esta carpeta reune toda la documentacion del proyecto, clasificada por area.
 
 - [Modelo de datos](./database/modelo-datos.md)
 - [Integracion PostgreSQL](./database/integracion-postgresql.md)
+- [Integracion Neon](./database/neon.md)
 - [Copias de seguridad y restauracion](./database/backups.md)
 - [Script principal de BBDD](./database/sql/database-setup.sql)
 - [Seed de pasos base](./database/sql/recipe-steps-seed.sql)

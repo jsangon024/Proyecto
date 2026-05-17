@@ -8,7 +8,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 
 | Estado | Total |
 | --- | ---: |
-| Resueltas | 37 |
+| Resueltas | 38 |
 | Pendientes | 0 |
 
 ## Incidencias registradas
@@ -52,6 +52,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 | INC-035 | Restauracion | Faltaba comprobar restauracion sin tocar la BBDD principal | Restaurar sobre principal podia sobrescribir datos actuales | Se restauro backup en `meal_planner_restore_test` y se verificaron conteos | Resuelta |
 | INC-036 | Herramientas | `git` no estaba disponible en PATH | Git no accesible desde la sesion | Se evito depender de `git diff` para la entrega y se verifico con builds/documentos | Resuelta |
 | INC-037 | Build frontend | `npm run build` podia fallar con `spawn EPERM` en sandbox | Windows/sandbox bloqueaba proceso de esbuild | Se ejecuto build con permisos adecuados y se verifico Vite | Resuelta |
+| INC-038 | Neon | Restaurar backup local en Neon mostraba errores de propietario `role "postgres" does not exist` | El backup local contenia propietarios del rol `postgres`, que no existe en Neon | Se anadio `--no-owner` al script de restauracion y se repitio la carga correctamente | Resuelta |
 
 ## Incidencias destacadas por impacto
 

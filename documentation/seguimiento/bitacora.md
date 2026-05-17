@@ -85,6 +85,7 @@ documentation/seguimiento/incidencias.md
 - Pruebas funcionales manuales principales: registro, verificacion email, login, recuperacion password, admin, ingredientes, recetas, inventario, plan mensual, lista de compra, completar dia y ajustes de usuario: correctas en entorno local.
 - Backup PostgreSQL: correcto, archivo generado en `documentation/database/backups/meal_planner_db-20260517_160709.backup`.
 - Restauracion PostgreSQL: correcta sobre la base de prueba `meal_planner_restore_test`, con datos verificados por conteo.
+- Restauracion en Neon: correcta, con datos verificados por conteo en la base gestionada.
 
 ### Lecciones aprendidas
 

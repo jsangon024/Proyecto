@@ -78,6 +78,31 @@ Restaurar recreando la base completa:
 
 La opcion `-RecreateDatabase` elimina y vuelve a crear `meal_planner_db`. Usarla solo cuando se quiera restaurar una copia completa.
 
+## Restauracion en Neon
+
+Para restaurar un backup local en Neon, usa los datos separados de la cadena de conexion:
+
+```powershell
+.\tools\database\restore-database.ps1 `
+  -BackupPath .\documentation\database\backups\ARCHIVO.backup `
+  -DbHost HOST_DE_NEON `
+  -Database neondb `
+  -Username USUARIO_NEON `
+  -Password PASSWORD_NEON
+```
+
+El script usa `--no-owner` en `pg_restore` para evitar errores al restaurar objetos cuyo propietario local era `postgres`. En servicios gestionados como Neon, ese rol normalmente no existe.
+
+Despues de restaurar, comprueba conteos:
+
+```sql
+SELECT COUNT(*) FROM users;
+SELECT COUNT(*) FROM ingredients;
+SELECT COUNT(*) FROM recipes;
+SELECT COUNT(*) FROM recipe_steps;
+SELECT COUNT(*) FROM meal_plans;
+```
+
 ## Procedimiento recomendado
 
 1. Detener temporalmente la API si se va a restaurar.

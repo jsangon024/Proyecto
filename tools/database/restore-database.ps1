@@ -80,6 +80,7 @@ if ($RecreateDatabase) {
     --verbose `
     --clean `
     --if-exists `
+    --no-owner `
     $BackupPath
 
 Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
