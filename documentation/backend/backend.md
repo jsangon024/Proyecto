@@ -53,10 +53,13 @@ La API usa estas variables opcionales:
 - `FRONTEND_BASE_URL`: URL del frontend para construir enlaces. Por defecto `http://localhost:5173`.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`: configuracion SMTP.
 - `SMTP_TIMEOUT_SECONDS`: tiempo maximo de espera de SMTP. Por defecto 15 segundos.
+- `RESEND_API_KEY`, `EMAIL_FROM`: envio alternativo por API HTTPS de Resend. Si existe `RESEND_API_KEY`, se usa Resend antes que SMTP.
 
 Si `SMTP_HOST` no esta configurado, la API no envia correo real y escribe el enlace en la consola. Esto permite probar la verificacion y la recuperacion en local sin contratar SMTP.
 
 El envio SMTP se realiza con MailKit. En Docker local puede activarse `SMTP_ALLOW_INVALID_CERTIFICATES=true` si la red o el entorno interceptan certificados TLS. Esta opcion no debe usarse en produccion.
+
+En despliegues cloud, si SMTP no esta disponible, puede usarse Resend mediante `RESEND_API_KEY`.
 
 ## Endpoints principales
 

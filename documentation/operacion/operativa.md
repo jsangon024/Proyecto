@@ -93,6 +93,8 @@ SMTP_PASSWORD=password_de_aplicacion
 SMTP_FROM=correo_remitente@gmail.com
 SMTP_ALLOW_INVALID_CERTIFICATES=true
 SMTP_TIMEOUT_SECONDS=15
+RESEND_API_KEY=
+EMAIL_FROM=Meal Planner <onboarding@resend.dev>
 ConnectionStrings__MealPlannerDb=Host=host.docker.internal;Port=5432;Database=meal_planner_db;Username=postgres;Password=TU_PASSWORD
 ```
 

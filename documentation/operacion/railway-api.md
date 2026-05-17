@@ -43,9 +43,13 @@ SMTP_PASSWORD=PASSWORD_DE_APLICACION
 SMTP_FROM=meal.planner.project.no.reply@gmail.com
 SMTP_ALLOW_INVALID_CERTIFICATES=false
 SMTP_TIMEOUT_SECONDS=15
+RESEND_API_KEY=API_KEY_DE_RESEND
+EMAIL_FROM=Meal Planner <onboarding@resend.dev>
 ```
 
 Si Railway tarda mucho en registro y termina en error, normalmente es un bloqueo o timeout SMTP. Con Gmail se puede probar `SMTP_PORT=465`; la API usara SSL directo para ese puerto. Con `SMTP_PORT=587` usara STARTTLS.
+
+Si `RESEND_API_KEY` esta configurada, la API usa Resend por HTTPS y no usa SMTP. Es la opcion recomendada en Railway.
 
 Cuando el frontend se despliegue en internet, actualiza:
 
@@ -142,4 +146,4 @@ SSL Mode=Require
 
 ### No llegan correos
 
-Revisar variables SMTP y que `SMTP_ALLOW_INVALID_CERTIFICATES` sea `false` en Railway.
+Revisar primero `RESEND_API_KEY` y `EMAIL_FROM`. Si no usas Resend, revisar variables SMTP y que `SMTP_ALLOW_INVALID_CERTIFICATES` sea `false` en Railway.

@@ -8,7 +8,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 
 | Estado | Total |
 | --- | ---: |
-| Resueltas | 41 |
+| Resueltas | 42 |
 | Pendientes | 0 |
 
 ## Incidencias registradas
@@ -56,6 +56,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 | INC-039 | Railway | La API necesitaba adaptarse al puerto dinamico de Railway | Railway publica servicios esperando que escuchen en `0.0.0.0:$PORT` | Se modifico el Dockerfile para usar `${PORT:-8080}` y se anadio `railway.toml` con Dockerfile path y healthcheck | Resuelta |
 | INC-040 | Vercel | El frontend vive dentro de la carpeta `frontend` y Vercel necesita saber como construirlo | El repositorio no tiene la app Vite en la raiz | Se anadio `vercel.json` con `rootDirectory`, build command y output directory, y se documento `VITE_API_BASE_URL` | Resuelta |
 | INC-041 | Railway/SMTP | Registro en Railway tardaba 120 segundos y terminaba en `400` | El envio SMTP esperaba el timeout completo al conectar con Gmail desde Railway | Se anadio `SMTP_TIMEOUT_SECONDS`, timeout corto por defecto y soporte de puerto 465 con SSL directo | Resuelta |
+| INC-042 | Railway/Email | Gmail SMTP no era fiable desde Railway | Plataforma cloud con problemas o bloqueo de puertos SMTP salientes | Se anadio soporte Resend por API HTTPS mediante `RESEND_API_KEY` | Resuelta |
 
 ## Incidencias destacadas por impacto
 
