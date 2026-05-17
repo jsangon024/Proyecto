@@ -52,6 +52,7 @@ La API usa estas variables opcionales:
 
 - `FRONTEND_BASE_URL`: URL del frontend para construir enlaces. Por defecto `http://localhost:5173`.
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`: configuracion SMTP.
+- `SMTP_TIMEOUT_SECONDS`: tiempo maximo de espera de SMTP. Por defecto 15 segundos.
 
 Si `SMTP_HOST` no esta configurado, la API no envia correo real y escribe el enlace en la consola. Esto permite probar la verificacion y la recuperacion en local sin contratar SMTP.
 

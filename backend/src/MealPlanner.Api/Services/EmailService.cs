@@ -60,6 +60,9 @@ public sealed class EmailService
         var username = _configuration["SMTP_USERNAME"];
         var password = _configuration["SMTP_PASSWORD"];
         var from = _configuration["SMTP_FROM"];
+        var timeoutSeconds = int.TryParse(_configuration["SMTP_TIMEOUT_SECONDS"], out var configuredTimeout)
+            ? Math.Clamp(configuredTimeout, 5, 60)
+            : 15;
         var allowInvalidCertificates = bool.TryParse(_configuration["SMTP_ALLOW_INVALID_CERTIFICATES"], out var allowInvalid)
             && allowInvalid;
 
@@ -75,13 +78,19 @@ public sealed class EmailService
         message.Body = new TextPart("plain") { Text = body };
 
         using var client = new SmtpClient();
+        client.Timeout = timeoutSeconds * 1000;
+
         if (allowInvalidCertificates)
         {
             _logger.LogWarning("SMTP_ALLOW_INVALID_CERTIFICATES esta activo. Usar solo en desarrollo local.");
             client.ServerCertificateValidationCallback = AcceptSmtpCertificateForDevelopment;
         }
 
-        await client.ConnectAsync(host, port, SecureSocketOptions.StartTls);
+        var socketOptions = port == 465
+            ? SecureSocketOptions.SslOnConnect
+            : SecureSocketOptions.StartTls;
+
+        await client.ConnectAsync(host, port, socketOptions);
 
         if (!string.IsNullOrWhiteSpace(username))
         {

@@ -50,8 +50,8 @@ No debe terminar en `/api`, porque el cliente frontend ya llama a rutas como `/a
 Cuando Vercel genere una URL, vuelve a Railway y cambia:
 
 ```text
-ALLOWED_ORIGINS=https://URL_DE_VERCEL
-FRONTEND_BASE_URL=https://URL_DE_VERCEL
+ALLOWED_ORIGINS=https://mealplanner-six-xi.vercel.app
+FRONTEND_BASE_URL=https://mealplanner-six-xi.vercel.app
 ```
 
 `FRONTEND_BASE_URL` es importante porque los correos de activacion y recuperacion usan esa URL.
@@ -79,6 +79,12 @@ La URL de Vercel no esta en `ALLOWED_ORIGINS` de Railway.
 ### Correos apuntan a localhost
 
 `FRONTEND_BASE_URL` en Railway sigue apuntando a `http://localhost:5173`. Cambialo a la URL de Vercel.
+
+## URL publica actual
+
+```text
+https://mealplanner-six-xi.vercel.app
+```
 
 ### API no responde
 

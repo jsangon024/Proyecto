@@ -42,13 +42,16 @@ SMTP_USERNAME=meal.planner.project.no.reply@gmail.com
 SMTP_PASSWORD=PASSWORD_DE_APLICACION
 SMTP_FROM=meal.planner.project.no.reply@gmail.com
 SMTP_ALLOW_INVALID_CERTIFICATES=false
+SMTP_TIMEOUT_SECONDS=15
 ```
+
+Si Railway tarda mucho en registro y termina en error, normalmente es un bloqueo o timeout SMTP. Con Gmail se puede probar `SMTP_PORT=465`; la API usara SSL directo para ese puerto. Con `SMTP_PORT=587` usara STARTTLS.
 
 Cuando el frontend se despliegue en internet, actualiza:
 
 ```text
-ALLOWED_ORIGINS=https://URL_DEL_FRONTEND
-FRONTEND_BASE_URL=https://URL_DEL_FRONTEND
+ALLOWED_ORIGINS=https://mealplanner-six-xi.vercel.app
+FRONTEND_BASE_URL=https://mealplanner-six-xi.vercel.app
 ```
 
 ## Pasos desde Railway Dashboard
