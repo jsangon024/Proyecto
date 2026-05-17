@@ -10,7 +10,7 @@ Dejar el proyecto ejecutable como sistema funcional: API .NET, frontend React, P
 - Backend: API en .NET 10.
 - Frontend: React con Vite.
 - Docker Compose: backend y frontend contenedorizados.
-- SMTP: envio de correos de activacion y recuperacion.
+- Email: envio de correos de activacion y recuperacion mediante Resend en cloud o SMTP/MailKit en local.
 
 ## Arranque recomendado
 
@@ -135,7 +135,8 @@ Debe cambiarse si el proyecto se utiliza fuera de desarrollo.
 ## Seguridad aplicada
 
 - Hash PBKDF2 para passwords.
-- Tokens Bearer opacos.
+- Tokens Bearer firmados con HMAC y expiracion.
+- `TOKEN_SIGNING_KEY` estable para mantener sesiones validas tras reinicios o nuevos despliegues.
 - Autorizacion por rol `admin`.
 - CORS configurado por entorno.
 - Cabeceras HTTP de seguridad.
@@ -144,10 +145,10 @@ Debe cambiarse si el proyecto se utiliza fuera de desarrollo.
 - Activacion de cuenta por email antes del login.
 - Recuperacion de password por email.
 - Tokens de email guardados como hash.
+- El formulario de login no muestra credenciales administrativas precargadas.
 
 ## Limitaciones conocidas
 
-- Los tokens viven en memoria y se pierden al reiniciar la API.
 - No hay refresh tokens.
 - No hay proyecto de tests automatizados.
 - La planificacion usa una heuristica simple de calorias, tipo de comida y restricciones.

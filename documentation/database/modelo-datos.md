@@ -2,7 +2,7 @@
 
 ## Tablas principales
 
-- `users`: usuarios, password hash, rol, objetivos nutricionales y tokens temporales de verificacion/recuperacion.
+- `users`: usuarios, password hash, rol, objetivos nutricionales, alimentos prohibidos y tokens temporales de verificacion/recuperacion.
 - `ingredients`: alimentos globales con informacion nutricional.
 - `recipes`: recetas globales o propias segun `owner_id`.
 - `recipe_ingredients`: ingredientes de cada receta.
@@ -42,6 +42,9 @@ El seed grande inserta o actualiza 100 recetas globales con ingredientes y pasos
 
 La tabla `users` incluye campos para activacion y recuperacion:
 
+- `daily_calories`: objetivo diario de calorias.
+- `minimum_protein_grams`: objetivo minimo diario de proteina.
+- `excluded_ingredients`: identificadores de ingredientes que el usuario no puede o no quiere consumir.
 - `is_email_verified`: indica si el usuario puede iniciar sesion.
 - `email_verification_token_hash`: hash del token de activacion.
 - `email_verification_token_expires_at`: caducidad del token de activacion.

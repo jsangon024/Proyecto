@@ -55,7 +55,9 @@ Usa `http://localhost:8080` con Docker y `http://localhost:5088` si ejecutas la 
 
 El registro no inicia sesion automaticamente. Tras crear la cuenta, el usuario debe abrir el enlace de activacion recibido por correo.
 
-En Gestion del plan, el usuario puede marcar alimentos prohibidos desde el catalogo global de ingredientes. Esa seleccion se guarda en su perfil y se envia a la API junto con sus objetivos nutricionales.
+La pantalla de login no precarga credenciales administrativas ni contrasenas de prueba. Los campos empiezan vacios y usan `autoComplete` para que el navegador gestione las credenciales del usuario.
+
+En Gestion del plan, el usuario puede marcar alimentos prohibidos desde el catalogo global de ingredientes. Esa seleccion se guarda en su perfil y se envia a la API junto con sus objetivos nutricionales. Los alimentos seleccionados aparecen como etiquetas con una `X` para quitarlos rapidamente antes de guardar.
 
 ## Ejecutar
 

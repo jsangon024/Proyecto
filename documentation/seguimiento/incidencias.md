@@ -8,7 +8,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 
 | Estado | Total |
 | --- | ---: |
-| Resueltas | 43 |
+| Resueltas | 45 |
 | Pendientes | 0 |
 
 ## Incidencias registradas
@@ -58,6 +58,8 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 | INC-041 | Railway/SMTP | Registro en Railway tardaba 120 segundos y terminaba en `400` | El envio SMTP esperaba el timeout completo al conectar con Gmail desde Railway | Se anadio `SMTP_TIMEOUT_SECONDS`, timeout corto por defecto y soporte de puerto 465 con SSL directo | Resuelta |
 | INC-042 | Railway/Email | Gmail SMTP no era fiable desde Railway | Plataforma cloud con problemas o bloqueo de puertos SMTP salientes | Se anadio soporte Resend por API HTTPS mediante `RESEND_API_KEY` | Resuelta |
 | INC-043 | Sesion | Al recargar la pagina se volvia al login | Los tokens se guardaban solo en memoria en la API y podian perderse con reinicios/instancias de Railway | Se cambiaron los tokens a formato firmado con HMAC y expiracion, usando `TOKEN_SIGNING_KEY` | Resuelta |
+| INC-044 | Planificador | Faltaba gestion visible de alimentos prohibidos | La API tenia el dato, pero el usuario no podia administrarlo desde la interfaz | Se anadio modal de alimentos prohibidos con buscador, guardado en perfil y etiquetas eliminables con `X` | Resuelta |
+| INC-045 | Seguridad frontend | La pantalla de login mostraba credenciales completas de administrador al cargar | Valores de prueba estaban precargados en el estado inicial del formulario | Se dejaron los campos vacios y se configuro `autoComplete` sin exponer credenciales | Resuelta |
 
 ## Incidencias destacadas por impacto
 
@@ -115,6 +117,20 @@ Solucion final:
 - Busqueda automatica de binarios PostgreSQL.
 - Backup probado.
 - Restauracion probada sobre `meal_planner_restore_test`.
+
+Estado: resuelto.
+
+### Seguridad de credenciales en login
+
+Problema:
+
+- La pantalla inicial mostraba email y password de la cuenta administradora de prueba.
+
+Solucion final:
+
+- Campos de login, registro y confirmacion inicializados vacios.
+- `autoComplete` configurado para que el navegador gestione credenciales del usuario sin hardcodearlas.
+- Verificacion con busqueda en `frontend/src` para confirmar que no quedan credenciales admin precargadas.
 
 Estado: resuelto.
 

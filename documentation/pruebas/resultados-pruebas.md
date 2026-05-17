@@ -7,7 +7,7 @@ Fecha de ultima actualizacion: 2026-05-17.
 | Tipo | Total | Correctas | Fallidas | Pendientes |
 | --- | ---: | ---: | ---: | ---: |
 | Tecnicas automaticas | 3 | 3 | 0 | 0 |
-| Funcionales manuales | 36 | 36 | 0 | 0 |
+| Funcionales manuales | 38 | 38 | 0 | 0 |
 | Backup/restauracion | 2 | 2 | 0 | 0 |
 | Despliegue cloud | 5 | 5 | 0 | 0 |
 
@@ -72,6 +72,8 @@ Estas pruebas se han ejecutado manualmente durante el desarrollo en entorno loca
 | PT-036 | Completar dia | Dia verde e inventario descontado | Dia completado y cantidades descontadas | Correcta |
 | PT-037 | Cambiar password propia | Login con nueva password | Password propia actualizada desde ajustes | Correcta |
 | PT-038 | Eliminar cuenta propia | Cuenta eliminada | Cuenta eliminada tras introducir password | Correcta |
+| PT-047 | Alimentos prohibidos | El generador no usa recetas con ingredientes excluidos | Alimentos seleccionables, quitables con `X` y guardados en perfil | Correcta |
+| PT-048 | Login sin credenciales precargadas | Campos de login vacios al cargar la app | No se muestran email ni password de administrador en la pantalla inicial | Correcta |
 
 ## Pruebas de backup y restauracion
 
@@ -98,3 +100,5 @@ Estas pruebas se han ejecutado manualmente durante el desarrollo en entorno loca
 - La prueba de backup se completo correctamente tras localizar `pg_dump` en la instalacion local de PostgreSQL.
 - La prueba de restauracion se ejecuto correctamente sobre la base de prueba `meal_planner_restore_test`, sin afectar a la base principal `meal_planner_db`.
 - El despliegue final queda validado con frontend en Vercel, API en Railway, BBDD en Neon y correos por Resend.
+- La pantalla de login ya no expone credenciales administrativas precargadas.
+- La gestion de alimentos prohibidos queda integrada en el planificador.

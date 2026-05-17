@@ -92,6 +92,9 @@ documentation/seguimiento/incidencias.md
 - Registro y correos en despliegue cloud funcionando correctamente con Resend.
 - Se sustituyen las sesiones en memoria por tokens firmados para conservar sesion al recargar la pagina.
 - Se anade gestion de alimentos prohibidos en el planificador; se guardan en el perfil y el generador excluye recetas que los contengan.
+- Se anaden etiquetas eliminables con `X` para quitar alimentos de la lista de prohibidos antes de guardar.
+- Se eliminan las credenciales administrativas precargadas de la pantalla de login.
+- `npm run build` en `frontend/` tras los ultimos cambios de seguridad/UI: correcto.
 
 ### Lecciones aprendidas
 

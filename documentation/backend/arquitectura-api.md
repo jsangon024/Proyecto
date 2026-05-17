@@ -23,11 +23,13 @@ La API esta organizada por capas para mantener `Program.cs` como archivo de conf
 - Las cuentas nuevas deben verificar su email antes de iniciar sesion.
 - La recuperacion de password se hace con token temporal enviado por correo.
 - Los tokens de verificacion y recuperacion no se guardan en claro, solo como hash.
+- Los tokens de sesion se firman con HMAC mediante `TOKEN_SIGNING_KEY` y no dependen de memoria local de la instancia.
 - Las recetas pueden ser globales o propias.
 - Una receta global usa `owner_id = 00000000-0000-0000-0000-000000000001`.
 - Una receta propia usa `owner_id = users.id`.
 - Administradores y propietarios pueden editar o eliminar recetas.
 - No se elimina una receta usada en planes mensuales.
+- El generador de planes excluye recetas que contengan alimentos prohibidos configurados por el usuario.
 - Al completar un dia se descuenta inventario y el dia queda completado.
 
 ## Endpoints

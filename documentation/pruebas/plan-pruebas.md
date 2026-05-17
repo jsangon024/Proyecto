@@ -72,6 +72,7 @@ docker compose up --build
 | PT-039 | Backup | Crear backup | Ejecutar `backup-database.ps1` | Archivo `.backup` generado |
 | PT-040 | Restore | Restaurar backup | Ejecutar `restore-database.ps1` | BBDD vuelve al estado del backup |
 | PT-047 | Planes | Alimentos prohibidos | Marcar un ingrediente prohibido y generar plan | No se usan recetas que contengan ese ingrediente |
+| PT-048 | Seguridad UI | Login sin credenciales precargadas | Abrir la pantalla de login | Email y password aparecen vacios, sin credenciales admin visibles |
 
 ## Criterio de aceptacion
 
@@ -85,3 +86,4 @@ El proyecto se considera valido si:
 - El generador respeta los alimentos prohibidos configurados por cada usuario.
 - El sistema de backup/restauracion genera y restaura una copia funcional.
 - No hay secretos obligatorios escritos en codigo fuente.
+- La interfaz no muestra credenciales administrativas precargadas.

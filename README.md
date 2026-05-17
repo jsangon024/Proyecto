@@ -30,7 +30,7 @@ React/Vercel -> API .NET/Railway -> Neon PostgreSQL
 - Recetas globales y recetas propias.
 - Recetas con multiples ingredientes y pasos.
 - Inventario personal editable.
-- Plan mensual guardado por usuario.
+- Plan mensual guardado por usuario, con objetivos nutricionales y alimentos prohibidos.
 - Lista de compra por plan y filtro semanal.
 - Marcado de dias completados con descuento de inventario.
 - Backup y restauracion de PostgreSQL.
@@ -97,6 +97,7 @@ Backend:
 ASPNETCORE_ENVIRONMENT=Production
 ALLOWED_ORIGINS=https://mealplanner-six-xi.vercel.app
 FRONTEND_BASE_URL=https://mealplanner-six-xi.vercel.app
+TOKEN_SIGNING_KEY=clave_larga_aleatoria_y_estable
 ConnectionStrings__MealPlannerDb=Host=...;Database=neondb;Username=...;Password=...;SSL Mode=Require
 RESEND_API_KEY=...
 EMAIL_FROM=Meal Planner <onboarding@resend.dev>
@@ -169,6 +170,8 @@ Guias destacadas:
 
 - No subir `.env` ni credenciales reales.
 - Usar variables de entorno en Railway y Vercel.
+- Mantener `TOKEN_SIGNING_KEY` estable para conservar sesiones entre despliegues.
 - Mantener `SMTP_ALLOW_INVALID_CERTIFICATES=false` en produccion.
 - Rotar claves compartidas durante pruebas.
 - Cambiar el password del administrador inicial fuera de entornos de prueba.
+- No precargar credenciales administrativas en el frontend.
