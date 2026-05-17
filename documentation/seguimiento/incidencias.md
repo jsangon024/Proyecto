@@ -8,7 +8,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 
 | Estado | Total |
 | --- | ---: |
-| Resueltas | 39 |
+| Resueltas | 40 |
 | Pendientes | 0 |
 
 ## Incidencias registradas
@@ -54,6 +54,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 | INC-037 | Build frontend | `npm run build` podia fallar con `spawn EPERM` en sandbox | Windows/sandbox bloqueaba proceso de esbuild | Se ejecuto build con permisos adecuados y se verifico Vite | Resuelta |
 | INC-038 | Neon | Restaurar backup local en Neon mostraba errores de propietario `role "postgres" does not exist` | El backup local contenia propietarios del rol `postgres`, que no existe en Neon | Se anadio `--no-owner` al script de restauracion y se repitio la carga correctamente | Resuelta |
 | INC-039 | Railway | La API necesitaba adaptarse al puerto dinamico de Railway | Railway publica servicios esperando que escuchen en `0.0.0.0:$PORT` | Se modifico el Dockerfile para usar `${PORT:-8080}` y se anadio `railway.toml` con Dockerfile path y healthcheck | Resuelta |
+| INC-040 | Vercel | El frontend vive dentro de la carpeta `frontend` y Vercel necesita saber como construirlo | El repositorio no tiene la app Vite en la raiz | Se anadio `vercel.json` con `rootDirectory`, build command y output directory, y se documento `VITE_API_BASE_URL` | Resuelta |
 
 ## Incidencias destacadas por impacto
 

@@ -36,6 +36,7 @@ Esta carpeta reune toda la documentacion del proyecto, clasificada por area.
 - [Guia operativa](./operacion/operativa.md)
 - [Guia de despliegue](./operacion/despliegue.md)
 - [Despliegue API en Railway](./operacion/railway-api.md)
+- [Despliegue frontend en Vercel](./operacion/vercel-frontend.md)
 
 ## API
 

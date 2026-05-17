@@ -87,6 +87,7 @@ documentation/seguimiento/incidencias.md
 - Restauracion PostgreSQL: correcta sobre la base de prueba `meal_planner_restore_test`, con datos verificados por conteo.
 - Restauracion en Neon: correcta, con datos verificados por conteo en la base gestionada.
 - Se prepara la API para Railway mediante `railway.toml` y escucha dinamica del puerto `${PORT}`.
+- Se prepara el frontend para Vercel mediante `vercel.json` y se documenta la variable `VITE_API_BASE_URL`.
 
 ### Lecciones aprendidas
 
