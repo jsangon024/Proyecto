@@ -35,6 +35,7 @@ En Railway, abre el servicio de la API y entra en `Variables`. Anade:
 ASPNETCORE_ENVIRONMENT=Production
 ALLOWED_ORIGINS=http://localhost:5173
 FRONTEND_BASE_URL=http://localhost:5173
+TOKEN_SIGNING_KEY=CLAVE_LARGA_ALEATORIA
 ConnectionStrings__MealPlannerDb=Host=HOST_DE_NEON;Port=5432;Database=neondb;Username=USUARIO_NEON;Password=PASSWORD_NEON;SSL Mode=Require
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -145,6 +146,10 @@ Debe incluir:
 ```text
 SSL Mode=Require
 ```
+
+### Al recargar se pierde la sesion
+
+Revisar que `TOKEN_SIGNING_KEY` exista en Railway y no cambie entre despliegues. Si cambia, los tokens anteriores dejan de ser validos y el usuario tendra que iniciar sesion de nuevo.
 
 ### No llegan correos
 

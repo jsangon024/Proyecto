@@ -1,42 +1,95 @@
 using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using MealPlanner.Api.Data;
 using MealPlanner.Api.Data.Entities;
-using MealPlanner.Api.Models;
 
 namespace MealPlanner.Api.Services;
 
 public sealed class TokenService
 {
     private readonly MealPlannerDbContext _db;
-    private readonly TokenSessionStore _sessions;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<TokenService> _logger;
 
-    public TokenService(MealPlannerDbContext db, TokenSessionStore sessions)
+    public TokenService(MealPlannerDbContext db, IConfiguration configuration, ILogger<TokenService> logger)
     {
         _db = db;
-        _sessions = sessions;
+        _configuration = configuration;
+        _logger = logger;
     }
 
     public string Create(UserEntity user)
     {
-        var bytes = RandomNumberGenerator.GetBytes(32);
-        var token = Convert.ToBase64String(bytes);
-        _sessions.Save(token, new AuthSession(user.Id, DateTimeOffset.UtcNow.AddHours(8)));
-        return token;
+        var payload = new TokenPayload(user.Id, DateTimeOffset.UtcNow.AddHours(8).ToUnixTimeSeconds());
+        var payloadJson = JsonSerializer.Serialize(payload);
+        var payloadPart = Base64UrlEncode(Encoding.UTF8.GetBytes(payloadJson));
+        var signaturePart = Base64UrlEncode(Sign(payloadPart));
+
+        return $"{payloadPart}.{signaturePart}";
     }
 
     public UserEntity? Validate(string token)
     {
-        if (!_sessions.TryGet(token, out var session) || session is null)
+        var parts = token.Split('.', 2);
+        if (parts.Length != 2)
         {
             return null;
         }
 
-        if (session.ExpiresAtUtc <= DateTimeOffset.UtcNow)
+        var expectedSignature = Base64UrlEncode(Sign(parts[0]));
+        if (!CryptographicOperations.FixedTimeEquals(
+            Encoding.UTF8.GetBytes(parts[1]),
+            Encoding.UTF8.GetBytes(expectedSignature)))
         {
-            _sessions.Remove(token);
             return null;
         }
 
-        return _db.Users.Find(session.UserId);
+        TokenPayload? payload;
+        try
+        {
+            payload = JsonSerializer.Deserialize<TokenPayload>(Encoding.UTF8.GetString(Base64UrlDecode(parts[0])));
+        }
+        catch
+        {
+            return null;
+        }
+
+        if (payload is null || payload.ExpiresAtUnix <= DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+        {
+            return null;
+        }
+
+        return _db.Users.Find(payload.UserId);
     }
+
+    private byte[] Sign(string payloadPart)
+    {
+        var signingKey = _configuration["TOKEN_SIGNING_KEY"];
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            signingKey = "development-only-token-signing-key-change-me";
+            _logger.LogWarning("TOKEN_SIGNING_KEY no esta configurada. Usando clave de desarrollo.");
+        }
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(signingKey));
+        return hmac.ComputeHash(Encoding.UTF8.GetBytes(payloadPart));
+    }
+
+    private static string Base64UrlEncode(byte[] bytes)
+    {
+        return Convert.ToBase64String(bytes)
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+    }
+
+    private static byte[] Base64UrlDecode(string value)
+    {
+        var padded = value.Replace('-', '+').Replace('_', '/');
+        padded = padded.PadRight(padded.Length + ((4 - padded.Length % 4) % 4), '=');
+        return Convert.FromBase64String(padded);
+    }
+
+    private sealed record TokenPayload(Guid UserId, long ExpiresAtUnix);
 }

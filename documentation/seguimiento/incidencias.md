@@ -8,7 +8,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 
 | Estado | Total |
 | --- | ---: |
-| Resueltas | 42 |
+| Resueltas | 43 |
 | Pendientes | 0 |
 
 ## Incidencias registradas
@@ -57,6 +57,7 @@ Registrar las incidencias, errores, bloqueos y decisiones correctivas aparecidas
 | INC-040 | Vercel | El frontend vive dentro de la carpeta `frontend` y Vercel necesita saber como construirlo | El repositorio no tiene la app Vite en la raiz | Se anadio `vercel.json` con `rootDirectory`, build command y output directory, y se documento `VITE_API_BASE_URL` | Resuelta |
 | INC-041 | Railway/SMTP | Registro en Railway tardaba 120 segundos y terminaba en `400` | El envio SMTP esperaba el timeout completo al conectar con Gmail desde Railway | Se anadio `SMTP_TIMEOUT_SECONDS`, timeout corto por defecto y soporte de puerto 465 con SSL directo | Resuelta |
 | INC-042 | Railway/Email | Gmail SMTP no era fiable desde Railway | Plataforma cloud con problemas o bloqueo de puertos SMTP salientes | Se anadio soporte Resend por API HTTPS mediante `RESEND_API_KEY` | Resuelta |
+| INC-043 | Sesion | Al recargar la pagina se volvia al login | Los tokens se guardaban solo en memoria en la API y podian perderse con reinicios/instancias de Railway | Se cambiaron los tokens a formato firmado con HMAC y expiracion, usando `TOKEN_SIGNING_KEY` | Resuelta |
 
 ## Incidencias destacadas por impacto
 

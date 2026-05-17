@@ -90,6 +90,7 @@ documentation/seguimiento/incidencias.md
 - Se prepara el frontend para Vercel mediante `vercel.json` y se documenta la variable `VITE_API_BASE_URL`.
 - Frontend desplegado en Vercel: `https://mealplanner-six-xi.vercel.app`.
 - Registro y correos en despliegue cloud funcionando correctamente con Resend.
+- Se sustituyen las sesiones en memoria por tokens firmados para conservar sesion al recargar la pagina.
 
 ### Lecciones aprendidas
 

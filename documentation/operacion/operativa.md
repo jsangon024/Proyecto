@@ -86,6 +86,7 @@ Variables importantes del backend:
 ```text
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 FRONTEND_BASE_URL=http://localhost:5173
+TOKEN_SIGNING_KEY=CLAVE_LARGA_ALEATORIA
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_USERNAME=correo_remitente@gmail.com

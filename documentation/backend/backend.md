@@ -38,13 +38,14 @@ Por defecto usa la cadena `MealPlannerDb` de `appsettings.json`.
 ## Seguridad
 
 - Passwords con PBKDF2 y sal aleatoria.
-- Tokens Bearer opacos con expiracion.
+- Tokens Bearer firmados con HMAC y expiracion.
 - Endpoints privados protegidos por middleware.
 - Operaciones de admin protegidas por rol.
 - CORS limitado por `ALLOWED_ORIGINS`.
 - Cabeceras HTTP basicas de seguridad.
 - Verificacion de email antes del primer login.
 - Tokens de verificacion y recuperacion guardados hasheados en base de datos.
+- Persistencia de sesion tras recarga mediante tokens firmados verificables por la API.
 
 ## Correo
 
@@ -54,6 +55,7 @@ La API usa estas variables opcionales:
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`: configuracion SMTP.
 - `SMTP_TIMEOUT_SECONDS`: tiempo maximo de espera de SMTP. Por defecto 15 segundos.
 - `RESEND_API_KEY`, `EMAIL_FROM`: envio alternativo por API HTTPS de Resend. Si existe `RESEND_API_KEY`, se usa Resend antes que SMTP.
+- `TOKEN_SIGNING_KEY`: clave privada para firmar tokens de sesion. En produccion debe configurarse con un valor largo y secreto.
 
 Si `SMTP_HOST` no esta configurado, la API no envia correo real y escribe el enlace en la consola. Esto permite probar la verificacion y la recuperacion en local sin contratar SMTP.
 
@@ -74,4 +76,4 @@ En despliegues cloud se usa Resend mediante `RESEND_API_KEY`. SMTP queda como al
 
 ## Notas
 
-Los tokens se guardan en memoria. Si se reinicia la API, los usuarios deben iniciar sesion de nuevo.
+Los tokens de sesion expiran a las 8 horas. En produccion debe mantenerse estable `TOKEN_SIGNING_KEY` para que las sesiones sigan siendo validas tras reinicios del backend.
