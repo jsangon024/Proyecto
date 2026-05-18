@@ -28,14 +28,25 @@ builder.Services.AddScoped<MealPlannerService>();
 builder.Services.AddScoped<ShoppingListService>();
 builder.Services.AddEndpointsApiExplorer();
 
-var allowedOrigins = (builder.Configuration["ALLOWED_ORIGINS"] ?? "http://localhost:5173,http://localhost:3000")
+var configuredOrigins = (builder.Configuration["ALLOWED_ORIGINS"] ?? string.Empty)
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+var allowedOrigins = configuredOrigins
+    .Concat(new[]
+    {
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://mealplanner-six-xi.vercel.app"
+    })
+    .Select(NormalizeOrigin)
+    .Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("frontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin => IsAllowedOrigin(origin, allowedOrigins))
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -43,8 +54,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
 app.UseCors("frontend");
+app.UseHttpsRedirection();
 app.UseSecurityHeaders();
 app.UseMiddleware<BearerTokenMiddleware>();
 
@@ -59,3 +70,34 @@ app.MapPlanEndpoints();
 app.MapShoppingListEndpoints();
 
 app.Run();
+
+static string NormalizeOrigin(string origin)
+{
+    if (string.IsNullOrWhiteSpace(origin))
+    {
+        return string.Empty;
+    }
+
+    if (!Uri.TryCreate(origin.Trim().TrimEnd('/'), UriKind.Absolute, out var uri))
+    {
+        return origin.Trim().TrimEnd('/');
+    }
+
+    return uri.IsDefaultPort
+        ? $"{uri.Scheme}://{uri.Host}"
+        : $"{uri.Scheme}://{uri.Host}:{uri.Port}";
+}
+
+static bool IsAllowedOrigin(string origin, string[] allowedOrigins)
+{
+    var normalizedOrigin = NormalizeOrigin(origin);
+    if (allowedOrigins.Contains(normalizedOrigin, StringComparer.OrdinalIgnoreCase))
+    {
+        return true;
+    }
+
+    return Uri.TryCreate(normalizedOrigin, UriKind.Absolute, out var uri)
+        && uri.Scheme == "https"
+        && uri.Host.EndsWith(".vercel.app", StringComparison.OrdinalIgnoreCase)
+        && uri.Host.StartsWith("mealplanner-", StringComparison.OrdinalIgnoreCase);
+}
